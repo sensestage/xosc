@@ -1,0 +1,59 @@
+XOSC
+
+Connect different OSC capable programs, considering the situation where you have two programs talking via OSC, but then want to have a third or fourth application, also using OSC from those same applications, without having to rewrite code.
+
+Solution:
+Just change the target host/port to send OSC to, to XOSC, and XOSC will allow you to patch OSC between applications.
+
+- XOSC does not require any changes to original software to use it
+
+- XOSC has an OSC interface to create connections.
+
+- XOSCope - provides a user interface for showing and creating connections.
+
+- (intra-XOSC) Several instances of XOSC can communicate with each other to create connections between them.
+
+- (net-XOSC) Something like OSC-Groups will allow for communication over the net.
+
+COMPONENTS:
+- XOsc    - server application which takes care of connections
+- libxosc - provides additional functionality to subscribe and manage connections
+
+IMPLEMENTATION AND INTERFACE
+
+* generic OSC handler 
+  which listens to incoming OSC messages, and stores the address-tags, with info from where they came (host+port), and what type tags they have. Either of these characteristics can change per address-tag.
+
+* OSC interface:
+/XOSC/register - provide a name for host/port combination - for labeling in interface
+/XOSC/unregister - release a name for host/port combination - for labeling in interface
+
+/XOSC/query/tags - query the available tags (args: port to send data back to)
+/XOSC/query/connections - query the set connections (args: port to send data back to)
+/XOSC/query/connections/tag - query connections for specific tag (args: port to send data back to, tag to query)
+
+/XOSC/register/watch - register to be informed about connections and tags (args: port to send messages to)
+/XOSC/unregister/watch - unregister to be informed about connections and tags (args: port to send messages to)
+
+/XOSC/subscribe/tag - make a connection to yourself for specific tag (args: port to send messages to, tag to connect)
+/XOSC/subscribe/host - make a connection to yourself for messages from specific host (args: port to send messages to, host ip, port to connec to)
+/XOSC/unsubscribe/tag - break a connection to yourself for specific tag (args: port to send messages to, tag to connect)
+/XOSC/unsubscribe/host - break a connection to yourself for messages from specific host (args: port to send messages to, host ip, port to connec to)
+
+/XOSC/connect/tag - make a connection for specific tag and host/port (args: tag, target host, target port)
+/XOSC/connect/host - make a connection for specific sender and host/port (args: source host, source port, target host, target port)
+/XOSC/disconnect/tag - break a connection for specific tag and host/port (args: tag, target host, target port)
+/XOSC/disconnect/host - break a connection for specific sender and host/port (args: source host, source port, target host, target port)
+
+* tag renaming/filtering/mapping (a la libmapper - see how far this needs to go)
+    */tag/retag  - make/break connection for specific tag, and rename it.(+ args: new tagname
+    */tag/filter - make/break connection for specific tag, and filter arguments (add. args: ids for slots of original data)
+    */tag/retag/filter - make/break connection for specific tag, and rename it, and filter arguments (add. args: new tagname, ids for slots)
+    */tag/map    - make/break connection and rescale data
+    */tag/retag/map
+    */tag/filter/map
+    */tag/retag/filter/map
+    
+* connections:
+- register an OSC handler, which will forward the message to the indicated host/port
+- and be able to remove it again when a connection is broken
