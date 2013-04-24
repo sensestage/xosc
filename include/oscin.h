@@ -53,9 +53,9 @@ public:
     int getPort();
 
     void sendMessage( lo_address targ, const char *path, lo_message mess );
-    void sendSimpleMessage( lo_address targ, const char *path, lo_message mess );
+    void sendSimpleMessage( lo_address targ, const char *path );
     
-    lo_message getMessage( const char* types, lo_arg** argv, int argc);
+//     lo_message getMessage( const char* types, lo_arg** argv, int argc);
 
     void        addMethod ( const char* path, const char* types, lo_method_handler h, void* user_data = NULL );
     void        removeMethod ( const char* path, const char* types );

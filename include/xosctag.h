@@ -1,9 +1,22 @@
 #ifndef XOSCTAG_H
 #define XOSCTAG_H
 
-#include "xosctypes.h"
+#include "lo_extensions.h"
+// #include "xosctypes.h"
+
+#include <string>
+#include <map>
+#include <lo/lo.h>
+
+using namespace std;
 
 namespace XOsc {
+  
+  class XOscServer;
+  class XOscClient; // application subscribing to osc messages
+  class XOscHost;   // application sending osc messages
+  typedef std::map<int, XOsc::XOscClient*> clientMap; // order by port
+  
 
    class XOscTag {
      
@@ -12,6 +25,8 @@ public:
     XOscTag( string tag );
     
     void setOrigin( XOscHost * host );
+    bool hasOrigin();
+    bool compareOrigin( lo_address addr );
     
     void setServer( XOscServer * serv );
     XOscServer * getServer();
@@ -24,6 +39,7 @@ public:
         
     void addSubscription( XOscClient * client );    // client
     void removeSubscription( XOscClient * client ); // client
+    bool hasSubscriptions();
     
     string getTag();
         
@@ -37,7 +53,6 @@ private:
   XOscHost * origin;
   clientMap subscribers;
 };
-
   
 }
 

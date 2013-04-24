@@ -2,9 +2,12 @@
 #define XOSCCLIENT_H
 
 #include <string>
+#include <map>
 #include <lo/lo.h>
 
 #include "xosctypes.h"
+
+using namespace std;
 
 namespace XOsc {
 
@@ -26,6 +29,9 @@ public:
     void sendMessageToSubscribers( XOscServer * server, const char * path, lo_message );
     void sendInfoAboutTags( lo_address * target );
     
+    void sendSingleConnectionInfo( XOscServer * server, XOscClient * client, lo_address * target );
+    void sendConnectionInfo( XOscServer * server, lo_address * target );
+    
     ~XOscHost();
 
 private:
@@ -35,8 +41,8 @@ private:
   string name;
   lo_address * hostAddress;
 };
- 
-  
+
+  typedef std::map<int, XOscHost*> hostMap;     // order by port 
 }
 
 #endif

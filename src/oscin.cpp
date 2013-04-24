@@ -62,12 +62,12 @@ int OSCServer::getPort()
 
 void OSCServer::sendMessage( lo_address targ, const char *path, lo_message mess )
 {
-	lo_send_message_from( targ, server, path, mess );
+  lo_send_message_from( targ, server, path, mess );
 }
 
-void OSCServer::sendSimpleMessage( const char *path )
+void OSCServer::sendSimpleMessage( lo_address targ, const char *path )
 {
-  lo_send_from( targ, server, LO_TT_IMMEDIATE, path );
+  lo_send_message_from( targ, server, path, NULL );
 }
 
 void OSCServer::start() 
@@ -92,6 +92,7 @@ void OSCServer::removeMethod( const char* path, const char* types )
     lo_server_thread_del_method( serverThread, path, types );
 }
 
+/*
 lo_message OSCServer::getMessage( const char* types, lo_arg** argv, int argc)
 {
   lo_message msg = lo_message_new();
@@ -145,6 +146,7 @@ lo_message OSCServer::getMessage( const char* types, lo_arg** argv, int argc)
     }
     return msg;
 }
+*/
 
 
 std::string OSCServer::getContent(const char* path, const char* types, lo_arg** argv, int argc)

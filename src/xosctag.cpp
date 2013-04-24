@@ -25,9 +25,14 @@
 #include <string>
 
 #include "xosctag.h"
-// #include "xosc.h"
-// #include "xoschost.h"
-// #include "xoscclient.h"
+
+#include "xosc.h"
+#include "xoschost.h"
+#include "xoscclient.h"
+
+#include "lo_extensions.h"
+
+// using namespace XOsc;
 
 namespace XOsc {
 
@@ -48,6 +53,14 @@ void XOscTag::setOrigin( XOscHost * host ){
     origin = host;
 }
 
+bool XOscTag::compareOrigin( lo_address addr ){
+    return lo_address_issame( addr, *(origin->getAddress()) );
+}
+
+bool XOscTag::hasOrigin(){
+  return (origin != NULL);
+}
+
 void XOscTag::setServer( XOscServer * serv ){
     server = serv;
 }
@@ -58,37 +71,39 @@ XOscServer * XOscTag::getServer(){
 
 void XOscTag::sendTagInfo( lo_address * target ){
 
-  lo_message msg = lo_message_new();
-  lo_message_add_string( tagname.c_str() );
-  lo_address * hostAddress = host->getAddress();
-  lo_message_add_string( lo_address_get_hostname( hostAddress ) );
-  lo_message_add_string( lo_address_get_port( hostAddress ) );
-  lo_message_add_string( host->getName().c_str() );
+  lo_address * hostAddress = origin->getAddress();
   
-  server.sendMessage( target, "/XOSC/info/tag", msg );
+  lo_message msg = lo_message_new();
+  lo_message_add_string( msg, tagname.c_str() );
+  
+  lo_message_add_string( msg, lo_address_get_hostname( hostAddress ) );
+  lo_message_add_string( msg, lo_address_get_port( hostAddress ) );
+  lo_message_add_string( msg, origin->getName().c_str() );
+  
+  server->sendMessage( target, "/XOSC/info/tag", msg );
   
   lo_message_free( msg );
 }
 
-void XOscTag::sendSingleConnectionInfo( XOSCClient * client, lo_address * target ){
+void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address * target ){
+
+  lo_address * clientAddress = client->getAddress();
 
   lo_message msg = lo_message_new();
-  lo_message_add_string( tagname.c_str() );
+  lo_message_add_string( msg, tagname.c_str() );  
+  lo_message_add_string( msg, lo_address_get_hostname( clientAddress ) );
+  lo_message_add_string( msg, lo_address_get_port( clientAddress ) );
+  lo_message_add_string( msg, client->getName().c_str() );
   
-  lo_address * clientAddress = client->getAddress();
-  lo_message_add_string( lo_address_get_hostname( clientAddress ) );
-  lo_message_add_string( lo_address_get_port(  clientAddress ) );
-  lo_message_add_string( client->getName().c_str() );
-  
-  server.sendMessage( target, "/XOSC/info/connection", msg );
+  server->sendMessage( target, "/XOSC/info/tag/connection", msg );
   
   lo_message_free( msg );
   
 }
 
 void XOscTag::sendConnectionInfo( lo_address * target ){
-  clientMap::const_iterator end = tag->subscribers.end(); 
-  for (clientMap::const_iterator it = tag->subscribers.begin(); it != end; ++it) {
+  clientMap::const_iterator end = subscribers.end(); 
+  for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
     sendSingleConnectionInfo( it->second, target );
   }
 }
@@ -109,16 +124,17 @@ int XOscTag::messageHandler( handlerArgs )
 {
   XOscTag * tag = (XOscTag *) user_data;
   XOscServer * server = tag->getServer();
-  if ( ( server->postDebug )
+  if ( server->postDebug ){
     cout << "[XOscTag::tag_message] " + server->getContent( path, types, argv, argc ) << "\n";
-
-    // TODO: send message on to all subscribed clients
-  lo_message msg = server->getMessage( types, argv, argc );    
+  }
+  lo_message msg = (lo_message) data;
+  
+//   lo_message msg = server->getMessage( types, argv, argc );    
   clientMap::const_iterator end = tag->subscribers.end(); 
   for (clientMap::const_iterator it = tag->subscribers.begin(); it != end; ++it) {
-      server.sendMessage( it->second->getAddress(), path, msg );
+      server->sendMessage( it->second->getAddress(), path, msg );
   }
-  origin->sendMessageToSubscribers( server, path, msg );
+  tag->origin->sendMessageToSubscribers( server, path, msg );
   lo_message_free( msg );
   return 0;
 }
