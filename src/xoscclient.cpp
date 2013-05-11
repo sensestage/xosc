@@ -1,7 +1,7 @@
 /***************************************************************************
- *   This file is part of libdatanetwork                                   *
+ *   This file is part of xosc                                   *
  *                                                                         *
- *   Copyright (C) 2009 by Marije Baalman                                  *
+ *   Copyright (C) 2013 by Marije Baalman                                  *
  *   nescivi _at_ gmail _dot_ com                                          *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
