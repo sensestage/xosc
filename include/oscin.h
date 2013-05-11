@@ -63,7 +63,7 @@ public:
 
     lo_server_thread serverThread;
     lo_server server;
-    int port;
+//     int port;
 
     // internal exception class 
     class EServ { };

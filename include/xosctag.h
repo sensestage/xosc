@@ -2,7 +2,8 @@
 #define XOSCTAG_H
 
 #include "lo_extensions.h"
-// #include "xosctypes.h"
+#include "xosctypes.h"
+#include "xoscclient.h"
 
 #include <string>
 #include <map>
@@ -13,9 +14,9 @@ using namespace std;
 namespace XOsc {
   
   class XOscServer;
-  class XOscClient; // application subscribing to osc messages
+//   class XOscClient; // application subscribing to osc messages
   class XOscHost;   // application sending osc messages
-  typedef std::map<int, XOsc::XOscClient*> clientMap; // order by port
+//   typedef std::map<int, XOsc::XOscClient*> clientMap; // order by port
   
 
    class XOscTag {
@@ -31,15 +32,17 @@ public:
     void setServer( XOscServer * serv );
     XOscServer * getServer();
     
-    void sendSingleConnectionInfo( XOscClient * client, lo_address * target );
-    void sendConnectionInfo( lo_address * target );
-    void sendTagInfo( lo_address * target );
+    void sendSingleConnectionInfo( XOscClient * client, lo_address target );
+    void sendConnectionInfo( lo_address target );
+    void sendTagInfo( lo_address target );
     
 //     bool fromSame( XOscClient * origin ); // check whether the message came from the same host
         
     void addSubscription( XOscClient * client );    // client
     void removeSubscription( XOscClient * client ); // client
     bool hasSubscriptions();
+    
+    void forwardMsgToSubscribers( const char * path, lo_message msg );
     
     string getTag();
         
@@ -48,12 +51,14 @@ public:
     static int messageHandler( handlerArgs );
 
 private:
+  bool originSet;
   string tagname;
   XOscServer * server;
   XOscHost * origin;
   clientMap subscribers;
 };
-  
+
+  typedef std::map<std::string, XOsc::XOscTag*> tagMap;
 }
 
 #endif

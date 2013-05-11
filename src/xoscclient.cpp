@@ -32,12 +32,25 @@
 
 namespace XOsc {
 
-  XOscClient::XOscClient( lo_address * host ){
+  XOscClient::XOscClient( lo_address host ){
       hostAddress = host;
   }
 
-  lo_address * XOscClient::getAddress(){
+  lo_address XOscClient::getAddress(){
       return hostAddress;
+  }
+  
+  int XOscClient::getPort(){
+      int port = lo_address_get_port_as_int( hostAddress );
+      return port;
+  }
+  
+  string XOscClient::getMapName(){
+      string myname = string( lo_address_get_url( hostAddress ) );
+  }
+  
+  string XOscClient::getName(){
+      return name;
   }
     
   void XOscClient::setName( string newname ){
@@ -51,14 +64,22 @@ namespace XOsc {
   void XOscClient::unsubscribeAll(){
     
   }
-    
-  void XOscClient:: addTagSubscription( XOscTag * tag ){
-    
+
+  void XOscClient:: addTagSubscription( string tagname ){
+//     tagSubscriptions.insert( tagname );
   }
   
-  void XOscClient::removeTagSubscription( XOscTag * tag ){
-    
+  void XOscClient::removeTagSubscription( string tagname ){
+//     tagSubscriptions.erase( tagname );
   }
+
+//   void XOscClient:: addTagSubscription( XOscTag * tag ){
+//     
+//   }
+//   
+//   void XOscClient::removeTagSubscription( XOscTag * tag ){
+//     
+//   }
 
   /*
   void XOscClient::addHostSubscription( XOscHost * host ){
@@ -70,6 +91,8 @@ namespace XOsc {
   }
   */
         
-  XOscClient::~XOscClient(){}
+  XOscClient::~XOscClient(){
+    lo_address_free( hostAddress );
+  }
 
 }

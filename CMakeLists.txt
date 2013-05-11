@@ -72,12 +72,21 @@ set(xosc_SRCS
   src/xosc.cpp
 )
 
-add_executable( xosc ${xosc_SRCS} )
+add_library( xosc SHARED ${xosc_SRCS} )
 
 target_link_libraries(xosc ${liblo_LIBRARIES} )
  
-install(TARGETS xosc DESTINATION bin)
+install(TARGETS xosc DESTINATION lib)
 
+set( xosc_main_SRCS
+  src/xosc_main.cpp
+)
+
+add_executable( xoscmain ${xosc_main_SRCS} )
+
+target_link_libraries(xoscmain xosc)
+
+install(TARGETS xoscmain DESTINATION bin)
 
 #configure_file(${CMAKE_SOURCE_DIR}/src/flamwizard/flamwizard.desktop.in ${CMAKE_BINARY_DIR}/flamwizard.desktop)
 #install(FILES ${CMAKE_BINARY_DIR}/flamwizard.desktop DESTINATION share/applications)

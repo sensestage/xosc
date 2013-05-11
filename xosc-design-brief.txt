@@ -49,7 +49,7 @@ IMPLEMENTATION AND INTERFACE
 /XOSC/query/tag/connections - query connections for specific tag (args: port to send data back to, tag to query)
 
 /XOSC/info/tag - tagname, sender ip, sender port, sender name (if any)
-/XOSC/info/tag/connection - tagname, receiver ip, receiver port, receiver name (if any)
+/XOSC/info/tag/connection - tagname, sender ip, sender port, sender name, receiver ip, receiver port, receiver name (if any)
 /XOSC/info/connection - tagname, sender ip, port, name (if any), receiver ip, receiver port, receiver name (if any)
 
 

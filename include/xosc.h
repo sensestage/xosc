@@ -33,14 +33,17 @@
 //#include "xosc.h"
 #include "oscin.h"
 #include "xosctypes.h"
-// #include "xoscclient.h"
+#include "xoscclient.h"
+#include "xosctag.h"
 // #include "xoschost.h"
-// #include "xosctag.h"
 
 
 using namespace std;
 
 namespace XOsc {
+  
+  typedef std::map<int, XOsc::XOscHost*> hostMap;     // order by port
+
   
 /**
 	@author Marije Baalman <nescivi@gmail.com>
@@ -51,6 +54,8 @@ public:
     XOscServer( const char *port );
     ~XOscServer();
     void addBasicMethods();
+    void debug( bool onoff );
+
     bool postDebug;
 
 private:
@@ -67,8 +72,9 @@ private:
   bool registerClient( lo_address clientAddr, int port, string name );
   bool registerHost( lo_address hostAddr, string name );
   
-  void sendTagInfo( int port ); // FIXME
-  void sendConnectionInfo( int port ); // FIXME
+  void sendTagInfo( lo_address addr ); // FIXME
+  void sendConnectionInfo( lo_address addr ); // FIXME
+  void sendConnectionTagInfo( lo_address addr, string name ); // FIXME
   
   void sendWatchersTagInfo( XOscTag* xtag );  
   void sendWatchersConnectionInfo( XOscTag* xtag, XOscClient * client, bool gotconnected );
@@ -92,7 +98,7 @@ private:
 // 	void sendSimpleMessage( const char *path );
 // 	void handleError( int errorid, const char *errorMsg, const char *prefix );
 
-  int port;
+//   int port;
 
 // ----------- osc handlers ---------------
 
@@ -101,8 +107,10 @@ private:
 // 	static int warnHandler( handlerArgs );
 
 	static int registerClientHandler( handlerArgs );
+	static int registerOtherClientHandler( handlerArgs );
 // 	static int unregisterClientHandler( handlerArgs );
 	static int registerHostHandler( handlerArgs );
+	static int registerOtherHostHandler( handlerArgs );
 // 	static int unregisterHostHandler( handlerArgs );
 	static int registerWatchHandler( handlerArgs ); // to be automatically informed about connections and new tags
 	static int unregisterWatchHandler( handlerArgs ); // to be automatically informed about connections and new tags

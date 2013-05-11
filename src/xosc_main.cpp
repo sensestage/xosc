@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 {
   XOscServer * xosc;
 
-  if ( argc < 4 ){
-    printf( "Start this DataNetwork example client with 3 arguments:\n");
+  if ( argc < 2 ){
+    printf( "Start XOSC with 1 arguments:\n");
 //     printf( "host ip (e.g. 127.0.0.1), the IP address of the host running the DataNetwork server\n");
     printf( "port (e.g. 7000), the port this client will use for OSC messages\n");
 //     printf( "name (e.g. example_client), the name by which this client will be identified in the DataNetwork\n");
@@ -50,11 +50,13 @@ int main(int argc, char *argv[])
     printf( "%s 7000\n", argv[0]); 
     return EXIT_SUCCESS;
   }
+  printf( "Started XOSC at port %s\n", argv[1]);
 
   // create an osc client interface for it:
   xosc = new XOscServer( argv[1] );
-  xosc->postDebug = true; // is false by default, but turn on if you want
+  xosc->debug( true ); // is false by default, but turn on if you want
   xosc->addBasicMethods();
+  xosc->start();
 
   while( true ){
     sleep( 5 );
