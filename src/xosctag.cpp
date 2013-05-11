@@ -75,9 +75,7 @@ XOscServer * XOscTag::getServer(){
     return server;
 }
 
-void XOscTag::sendTagInfo( lo_address target ){
-
-  
+lo_message XOscTag::getTagInfoMsg(){
   lo_message msg = lo_message_new();
   lo_message_add_string( msg, tagname.c_str() );
 
@@ -92,13 +90,19 @@ void XOscTag::sendTagInfo( lo_address target ){
     lo_message_add_string( msg, "" );
     lo_message_add_string( msg, "" );
   }
+  return msg;  
+}
+
+void XOscTag::sendTagInfo( lo_address target ){
+
+  lo_message msg = getTagInfoMsg();
 
   server->sendMessage( target, "/XOSC/info/tag", msg );
   
   lo_message_free( msg );
 }
 
-void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target ){
+lo_message XOscTag::getSingleConnectionInfoMsg( XOscClient * client, bool connected ){
   lo_address clientAddress = client->getAddress();
 
   lo_message msg = lo_message_new();
@@ -119,6 +123,19 @@ void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target )
   lo_message_add_string( msg, lo_address_get_hostname( clientAddress ) );
   lo_message_add_string( msg, lo_address_get_port( clientAddress ) );
   lo_message_add_string( msg, client->getName().c_str() );
+  
+  if ( connected )
+    lo_message_add_true( msg );
+  else
+    lo_message_add_false( msg );
+  
+  return msg;
+}
+
+void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected ){
+  lo_address clientAddress = client->getAddress();
+  
+  lo_message msg = getSingleConnectionInfoMsg( client, connected );
   
   server->sendMessage( target, "/XOSC/info/tag/connection", msg );
   

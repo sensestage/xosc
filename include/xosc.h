@@ -72,10 +72,15 @@ private:
   bool registerClient( lo_address clientAddr, int port, string name );
   bool registerHost( lo_address hostAddr, string name );
   
+  bool registerWatcher( lo_address clientAddr, int port );
+  bool unregisterWatcher( lo_address clientAddr, int port );
+  
   void sendTagInfo( lo_address addr ); // FIXME
   void sendConnectionInfo( lo_address addr ); // FIXME
   void sendConnectionTagInfo( lo_address addr, string name ); // FIXME
   
+  void sendWatchersClientInfo( XOscClient* client );  
+  void sendWatchersHostInfo( XOscHost* host );  
   void sendWatchersTagInfo( XOscTag* xtag );  
   void sendWatchersConnectionInfo( XOscTag* xtag, XOscClient * client, bool gotconnected );
   
@@ -83,6 +88,10 @@ private:
   bool tagCheckAndChangeOrigin( XOscTag* xtag, lo_address originAddress );
   void createNewTag( string name, lo_address originAddress );
   XOscTag* createNewTag( string name );
+
+  XOscClient* watcherExists( int port, lo_address addr );
+  XOscClient* createNewWatcher( int port, lo_address addr );
+  void removeWatcher( int port );
   
   XOscClient* clientExists( int port, lo_address addr );
   bool clientExistsAndChangeName( int port, lo_address addr, string name );

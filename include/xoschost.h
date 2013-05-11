@@ -33,6 +33,8 @@ public:
 //     void sendMessageToSubscribers( XOscServer * server, const char * path, lo_message );
     void sendInfoAboutTags( lo_address * target );
     
+    lo_message getHostInfoMsg();
+    
 //     void sendSingleConnectionInfo( XOscServer * server, XOscClient * client, lo_address * target );
 //     void sendConnectionInfo( XOscServer * server, lo_address * target );
     

@@ -37,6 +37,8 @@ public:
 
  //   void addHostSubscription( XOscHost * host ); // HOST
  //   void removeHostSubscription( XOscHost * host ); // HOST
+    
+    lo_message getClientInfoMsg();
         
     ~XOscClient();
 

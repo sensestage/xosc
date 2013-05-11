@@ -62,6 +62,14 @@ void XOscHost::unsetName(){
     name = "";
 }
 
+lo_message XOscHost::getHostInfoMsg(){
+    lo_message msg = lo_message_new();
+    lo_message_add_string( msg, lo_address_get_hostname( hostAddress ) );
+    lo_message_add_string( msg, lo_address_get_port( hostAddress ) );
+    lo_message_add_string( msg, name.c_str() );
+    return msg;
+}
+
 // void XOscHost::addTag( XOscTag * tag ){
 //   sendingTags.insert( make_pair( tag->getTag(), tag ) );    
 // }

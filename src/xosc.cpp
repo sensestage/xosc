@@ -59,6 +59,7 @@ int XOscServer::registerClientHandler( handlerArgs )
 
 int XOscServer::registerOtherClientHandler( handlerArgs )
 {
+  // TODO: return port should be given
   lo_message msg = (lo_message) data;
   lo_address addr = lo_message_get_source( msg );
   XOscServer* server = ( XOscServer* ) user_data;
@@ -68,10 +69,12 @@ int XOscServer::registerOtherClientHandler( handlerArgs )
   }
   
 //  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
-  lo_address newaddr = lo_address_create_from( &argv[0]->s, argv[1]->i  );
+  lo_address newaddr = lo_address_create_from( &argv[1]->s, argv[2]->i  );
+  lo_address retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
 //   string str( argv[2]->s, strnlen( argv[2]->s, 127 ) );
-  bool res = server->registerClient( newaddr, argv[1]->i, (string) &argv[2]->s );
-  server->sendConfirmation( newaddr, "/XOSC/register/client", res );
+  bool res = server->registerClient( newaddr, argv[2]->i, (string) &argv[3]->s );
+  server->sendConfirmation( retaddr, "/XOSC/register/client", res );
+  lo_address_free( retaddr );
   return 0;
 }
 
@@ -85,13 +88,14 @@ int XOscServer::registerHostHandler( handlerArgs )
  	cout << "[XOscServer:host register]: " + server->getContent( path, types, argv, argc ) + "from:" + (string)(lo_address_get_hostname( addr) ) + (string) (lo_address_get_port( addr ) ) << "\n";
   }
   lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
-  bool res = server->registerHost( addr, (string) &argv[1]->s );
+  bool res = server->registerHost( newaddr, (string) &argv[1]->s );
   server->sendConfirmation( newaddr, "/XOSC/register/host", res );
   return 0;
 }
 
 int XOscServer::registerOtherHostHandler( handlerArgs )
 {
+  // TODO: return port should be given
   lo_message msg = (lo_message) data;
   lo_address addr = lo_message_get_source( msg );
   XOscServer* server = ( XOscServer* ) user_data;
@@ -99,9 +103,12 @@ int XOscServer::registerOtherHostHandler( handlerArgs )
   if ( server->postDebug ){
  	cout << "[XOscServer:host register]: " + server->getContent( path, types, argv, argc ) + "from:" + (string)(lo_address_get_hostname( addr) ) + (string) (lo_address_get_port( addr ) ) << "\n";
   }
-  lo_address newaddr = lo_address_create_from( &argv[0]->s, argv[1]->i  );
-  bool res = server->registerHost( addr, (string) &argv[2]->s );
-  server->sendConfirmation( newaddr, "/XOSC/register/host", res );
+  lo_address newaddr = lo_address_create_from( &argv[1]->s, argv[2]->i  );
+  lo_address retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+
+  bool res = server->registerHost( newaddr, (string) &argv[3]->s );
+  server->sendConfirmation( retaddr, "/XOSC/register/host", res );
+  lo_address_free( retaddr );
   return 0;
 }
 
@@ -180,9 +187,10 @@ int XOscServer::registerWatchHandler( handlerArgs )
 
   if ( server->postDebug )
     	cout << "[XOscServer::registerWatch] " + server->getContent( path, types, argv, argc ) << "\n";
-    
-  // TODO: subscribe to connections and tags info
-	// - send confirmation
+
+  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  bool res = server->registerWatcher( newaddr, argv[0]->i );
+  server->sendConfirmation( newaddr, "/XOSC/register/watch", res );
     
     return 0;
 }
@@ -196,8 +204,9 @@ int XOscServer::unregisterWatchHandler( handlerArgs )
   if ( server->postDebug )
     	cout << "[XOscServer::unregisterWatch] " + server->getContent( path, types, argv, argc ) << "\n";
     
-  // TODO: unsubscribe to connections and tags info
-    	// - send confirmation
+  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  bool res = server->unregisterWatcher( newaddr, argv[0]->i );
+  server->sendConfirmation( newaddr, "/XOSC/unregister/watch", res );
     return 0;
 }
 
@@ -488,17 +497,17 @@ int XOscServer::unsubscribeTagHandler( handlerArgs )
     server->sendConfirmation( newaddr, "/XOSC/unsubscribe/tag", true ); // did not succeed, as this was not a client yet
     return 0;
   }
-  tag->removeSubscription( myclient );
-	// - if we have connection subscriptions, inform about the lost connection
+  // - if we have connection subscriptions, inform about the lost connection
   server->sendWatchersConnectionInfo( tag, myclient, false );
+  tag->removeSubscription( myclient );
   // tag has no subscriptions left, so remove method
   if ( !tag->hasSubscriptions() ){
     server->deleteMethod( tag );
-    return 0;
+//     return 0;
   }
 	// - send confirmation
   server->sendConfirmation( newaddr, "/XOSC/unsubscribe/tag", true );
-    return 0;
+  return 0;
 }
 
 
@@ -557,11 +566,11 @@ void XOscServer::addBasicMethods()
 // 	addMethod( "/warn",  "ssi", warnHandler, this );
 
 	addMethod( "/XOSC/register/client",  "is", registerClientHandler, this );    // port, name
-	addMethod( "/XOSC/register/client",  "sis", registerOtherClientHandler, this );    // ipaddress, port, name
+	addMethod( "/XOSC/register/client",  "isis", registerOtherClientHandler, this );    // ipaddress, port, name
 // 	addMethod( "/XOSC/unregister/client", "is", unregisterClientHandler, this ); // port, name
 
 	addMethod( "/XOSC/register/host",  "is", registerHostHandler, this );    // port (to send confirm to), name
-	addMethod( "/XOSC/register/host",  "sis", registerOtherHostHandler, this );    // ip address, port, name
+	addMethod( "/XOSC/register/host",  "isis", registerOtherHostHandler, this );    // ip address, port, name
 // 	addMethod( "/XOSC/unregister/host", "is", unregisterHostHandler, this ); // port (to send confirm to), name
 	
 	addMethod( "/XOSC/register/watch",   "i",  registerWatchHandler, this ); // port to send back to
@@ -618,16 +627,35 @@ bool XOscServer::registerClient( lo_address clientAddr, int port, string name ){
   if ( clientExistsAndChangeName( port, clientAddr, name ) ){
       return true; // was already registered
   }
-  createNewClient( port, clientAddr, name );
+  XOscClient * client = createNewClient( port, clientAddr, name );
+  sendWatchersClientInfo( client );
   return true;
 }
 
 bool XOscServer::registerHost( lo_address hostAddr, string name ){
+  
   if ( hostExistsAndChangeName( hostAddr, name ) ){
       return true; // was already registered
   }
-  createNewHost( hostAddr, name );
+  XOscHost * host = createNewHost( hostAddr, name );
+  sendWatchersHostInfo( host );
   return true;
+}
+
+bool XOscServer::registerWatcher( lo_address clientAddr, int port ){
+  if ( watcherExists( port, clientAddr ) ){
+      return true; // was already registered
+  }
+  createNewWatcher( port, clientAddr );
+  return true;
+}
+
+bool XOscServer::unregisterWatcher( lo_address clientAddr, int port ){
+  if ( watcherExists( port, clientAddr ) ){
+      removeWatcher( port );
+      return true;
+  }
+  return false;
 }
 
 
@@ -637,7 +665,6 @@ void XOscServer::sendTagInfo( lo_address addr ){
   for (tagMap::const_iterator it = oscTags.begin(); it != end; ++it) {
       it->second->sendTagInfo( addr );
   }
-
 //   
 }
 
@@ -650,19 +677,48 @@ void XOscServer::sendConnectionInfo( lo_address  addr ){
 }
 
 void XOscServer::sendConnectionTagInfo( lo_address  addr, string tag ){
-    // TODO: find tag, and send which clients are connected
    XOscTag * xtag = tagExists( tag );
    if ( xtag != NULL ){
       xtag->sendConnectionInfo( addr );
    }
 }
 
+void XOscServer::sendWatchersClientInfo( XOscClient * client ){
+  lo_message msg = client->getClientInfoMsg();    
+  clientMap::const_iterator end = oscWatchers.end(); 
+  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+    sendMessage( it->second->getAddress(), "/XOSC/info/client", msg );  
+  }  
+  lo_message_free( msg );
+}
+
+void XOscServer::sendWatchersHostInfo( XOscHost * host ){
+  lo_message msg = host->getHostInfoMsg();    
+  clientMap::const_iterator end = oscWatchers.end(); 
+  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+    sendMessage( it->second->getAddress(), "/XOSC/info/host", msg );  
+  }  
+  lo_message_free( msg );
+}
+
 void XOscServer::sendWatchersTagInfo( XOscTag * xtag ){
-    // TODO: iterate over watchers and send tag info
+  lo_message msg = xtag->getTagInfoMsg();
+  clientMap::const_iterator end = oscWatchers.end(); 
+  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+//     xtag->sendTagInfo( it->second->getAddress() );
+    sendMessage( it->second->getAddress(), "/XOSC/info/tag", msg );  
+  }
+  lo_message_free( msg );
 }
 
 void XOscServer::sendWatchersConnectionInfo( XOscTag * xtag, XOscClient * client, bool gotconnected ){
-    // TODO: iterate over watchers and send tag info
+  lo_message msg = xtag->getSingleConnectionInfoMsg( client, gotconnected );
+  clientMap::const_iterator end = oscWatchers.end(); 
+  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+    sendMessage( it->second->getAddress(), "/XOSC/info/connection", msg );  
+//     xtag->sendSingleConnectionInfo( client, it->second->getAddress(), gotconnected );
+  }
+  lo_message_free( msg );
 }
 
 XOscTag * XOscServer::tagExists( string name ){
@@ -700,6 +756,7 @@ void XOscServer::createNewTag( string name, lo_address originAddress ){
   newtag->setOrigin( myhost );
   newtag->setServer( this );
   oscTags.insert( make_pair( name, newtag ) );
+  sendWatchersTagInfo( newtag );
 }
 
 XOscTag * XOscServer::createNewTag( string name ){
@@ -707,7 +764,32 @@ XOscTag * XOscServer::createNewTag( string name ){
   XOscTag * newtag = new XOscTag( name );
   newtag->setServer( this );
   oscTags.insert( make_pair( name, newtag ) );
+  sendWatchersTagInfo( newtag );
   return newtag;
+}
+
+XOscClient * XOscServer::watcherExists( int port, lo_address addr ){
+  clientMap::iterator iter = oscWatchers.find( port );
+  if ( iter != oscWatchers.end() ){
+    if ( lo_address_issame( addr, iter->second->getAddress() ) ){
+      return iter->second;
+// 	return true;
+    }
+  }
+  return NULL;
+}
+
+XOscClient * XOscServer::createNewWatcher( int port, lo_address addr ){
+  XOscClient * newclient = new XOscClient( addr );
+  oscWatchers.insert( make_pair( port, newclient) );
+  return newclient;
+}
+
+void XOscServer::removeWatcher( int port ){
+  clientMap::iterator iter = oscWatchers.find( port );
+  if ( iter != oscWatchers.end() ){
+    oscWatchers.erase( iter );
+  }
 }
 
 XOscClient * XOscServer::clientExists( int port, lo_address addr ){

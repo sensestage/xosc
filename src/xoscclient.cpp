@@ -72,6 +72,14 @@ namespace XOsc {
   void XOscClient::removeTagSubscription( string tagname ){
 //     tagSubscriptions.erase( tagname );
   }
+  
+  lo_message XOscClient::getClientInfoMsg(){
+    lo_message msg = lo_message_new();
+    lo_message_add_string( msg, lo_address_get_hostname( hostAddress ) );
+    lo_message_add_string( msg, lo_address_get_port( hostAddress ) );
+    lo_message_add_string( msg, name.c_str() );
+    return msg;
+  }
 
 //   void XOscClient:: addTagSubscription( XOscTag * tag ){
 //     
