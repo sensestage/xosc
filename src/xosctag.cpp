@@ -172,6 +172,7 @@ void XOscTag::forwardMsgToSubscribers( const char * path, lo_message msg ){
   for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
       server->sendMessage( it->second->getAddress(), path, msg );
   }
+  origin->sendMessageToSubscribers( server, path, msg );
 }
 
 int XOscTag::messageHandler( handlerArgs )

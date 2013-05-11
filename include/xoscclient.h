@@ -24,7 +24,6 @@
 #define XOSCCLIENT_H
 
 #include <string>
-#include <map>
 #include <lo/lo.h>
 
 #include "xosctypes.h"
@@ -50,6 +49,8 @@ public:
     void unsetName();
     
     void unsubscribeAll();
+    
+    tagNameList * getTags();
 
     void addTagSubscription( string tagname ); // TAG
     void removeTagSubscription( string tagname ); // TAG

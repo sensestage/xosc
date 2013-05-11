@@ -64,13 +64,17 @@ namespace XOsc {
   void XOscClient::unsubscribeAll(){
     
   }
+  
+  tagNameList * XOscClient::getTags(){
+      return &tagSubscriptions;
+  }
 
   void XOscClient:: addTagSubscription( string tagname ){
-//     tagSubscriptions.insert( tagname );
+     tagSubscriptions.insert( tagname );
   }
   
   void XOscClient::removeTagSubscription( string tagname ){
-//     tagSubscriptions.erase( tagname );
+     tagSubscriptions.erase( tagname );
   }
   
   lo_message XOscClient::getClientInfoMsg(){
@@ -80,14 +84,6 @@ namespace XOsc {
     lo_message_add_string( msg, name.c_str() );
     return msg;
   }
-
-//   void XOscClient:: addTagSubscription( XOscTag * tag ){
-//     
-//   }
-//   
-//   void XOscClient::removeTagSubscription( XOscTag * tag ){
-//     
-//   }
 
   /*
   void XOscClient::addHostSubscription( XOscHost * host ){

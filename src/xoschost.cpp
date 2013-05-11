@@ -74,16 +74,20 @@ lo_message XOscHost::getHostInfoMsg(){
 //   sendingTags.insert( make_pair( tag->getTag(), tag ) );    
 // }
 
-void XOscHost::addTag( string tagname ){
-//   tagNameList.insert( tagname );
-}
+  void XOscHost::addTag( string tagname ){
+    sendingTags.insert( tagname );
+  }
 
-// void XOscHost::sendMessageToSubscribers( XOscServer * server, const char * path, lo_message ){
-//   clientMap::const_iterator end = subscribers.end(); 
-//   for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
-//       server->sendMessage( it->second->getAddress(), path, msg );
-//   }
-// }
+  tagNameList * XOscHost::getTags(){
+      return &sendingTags;
+  }
+
+  void XOscHost::sendMessageToSubscribers( XOscServer * server, const char * path, lo_message msg ){
+    clientMap::const_iterator end = subscribers.end(); 
+    for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
+	server->sendMessage( it->second->getAddress(), path, msg );
+    }
+  }
 
 void XOscHost::sendInfoAboutTags( lo_address * target ){
   // TODO: Iterate over tags and call sendTagInfo on it

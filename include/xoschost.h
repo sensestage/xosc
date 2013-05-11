@@ -23,12 +23,11 @@
 #define XOSCHOST_H
 
 #include <string>
-#include <map>
-#include <list>
 #include <lo/lo.h>
 
 #include "xosctypes.h"
 #include "xoscclient.h"
+#include "xosc.h"
 
 using namespace std;
 using namespace XOsc;
@@ -47,11 +46,13 @@ public:
     
     //void addTag( XOscTag * tag );
     void addTag( string tagname );
+    tagNameList * getTags();
     
     void addSubscription( XOscClient * client );    // client
     void removeSubscription( XOscClient * client ); // client    
     
-//     void sendMessageToSubscribers( XOscServer * server, const char * path, lo_message );
+    void sendMessageToSubscribers( XOscServer * server, const char * path, lo_message );
+    
     void sendInfoAboutTags( lo_address * target );
     
     lo_message getHostInfoMsg();

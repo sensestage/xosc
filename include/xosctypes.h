@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include <list>
+#include <set>
 
 #include <lo/lo.h>
 
@@ -19,8 +19,8 @@ namespace XOsc {
 //   class XOscHost;   // application sending osc messages
 //   class XOscTag;
 
-  typedef std::list<std::string> tagNameList;
-  typedef std::list<std::string> ipNameList;
+  typedef std::set<std::string> tagNameList;
+  typedef std::set<std::string> ipNameList;
 
 //    typedef std::map<std::string, XOsc::XOscTag*> tagMap;
 //    typedef std::map<int, XOsc::XOscClient*> clientMap; // order by port

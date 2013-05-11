@@ -210,55 +210,6 @@ int XOscServer::unregisterWatchHandler( handlerArgs )
     return 0;
 }
 
-
-int XOscServer::subscribeHostHandler( handlerArgs )
-{ 
-  lo_message msg = (lo_message) data;
-  lo_address addr = lo_message_get_source( msg );
-  XOscServer* server = ( XOscServer* ) user_data;
-
-  if ( server->postDebug )
-    cout << "[XOscServer::subscribeHost] " + server->getContent( path, types, argv, argc ) << "\n";
-  
-  // TODO
-}
-
-int XOscServer::subscribeHostnameHandler( handlerArgs )
-{ 
-  lo_message msg = (lo_message) data;
-  lo_address addr = lo_message_get_source( msg );
-  XOscServer* server = ( XOscServer* ) user_data;
-
-  if ( server->postDebug )
-    cout << "[XOscServer::subscribeNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
-  
-  // TODO
-}
-
-int XOscServer::unsubscribeHostHandler( handlerArgs )
-{ 
-  lo_message msg = (lo_message) data;
-  lo_address addr = lo_message_get_source( msg );
-  XOscServer* server = ( XOscServer* ) user_data;
-
-  if ( server->postDebug )
-    cout << "[XOscServer::unsubscribeHost] " + server->getContent( path, types, argv, argc ) << "\n";
-  
-  // TODO
-}
-
-int XOscServer::unsubscribeHostnameHandler( handlerArgs )
-{ 
-  lo_message msg = (lo_message) data;
-  lo_address addr = lo_message_get_source( msg );
-  XOscServer* server = ( XOscServer* ) user_data;
-
-  if ( server->postDebug )
-    cout << "[XOscServer::unsubscribeNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
-  
-  // TODO
-}
-
 int XOscServer::connectHostHandler( handlerArgs )
 { 
   lo_message msg = (lo_message) data;
@@ -418,12 +369,9 @@ int XOscServer::subscribeHandler( handlerArgs )
   if ( myclient == NULL ){
     myclient = server->createNewClient( argv[0]->i, newaddr );
   }
+  server->subscribeToAllTags( myclient );
+  server->sendConfirmation( newaddr, "/XOSC/subscribe", true );
 
-    // TODO: subscribe the client to all tags
-	// - if no subscriptions yet, create a responder for the tag
-	// - subscribe this client
-	// - if we have connection subscriptions, inform about the new connection
-	// - send confirmation
     return 0;
 }
 
@@ -436,13 +384,15 @@ int XOscServer::unsubscribeHandler( handlerArgs )
   if ( server->postDebug )
     cout << "[XOscServer::unsubscribe] " + server->getContent( path, types, argv, argc ) << "\n";
 
+  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  XOscClient * myclient = server->clientExists( argv[0]->i, newaddr );
+  if ( myclient == NULL ){
+    myclient = server->createNewClient( argv[0]->i, newaddr );
+  }
+  server->unsubscribeFromAllTags( myclient );
 
-    // TODO: unsubscribe the client to all tags
-	// - if no subscriptions left, remove responder for the tag
-	// - unsubscribe this client
-	// - if we have connection subscriptions, inform about the new connection
-	// - send confirmation
-    return 0;
+  server->sendConfirmation( newaddr, "/XOSC/unsubscribe", true );
+  return 0;
 }
 
 int XOscServer::subscribeTagHandler( handlerArgs )
@@ -461,20 +411,9 @@ int XOscServer::subscribeTagHandler( handlerArgs )
   }
 	// - if tag does not yet exist, create a tag, and a responder, even if it has no origin yet
   string tagname = &argv[1]->s;
-  XOscTag * tag = server->tagExists( tagname );
-  if ( tag == NULL ){
-      tag = server->createNewTag( tagname );
-  }
-	// - if no subscriptions yet, create a responder for the tag
-  if ( !tag->hasSubscriptions() ){
-      server->createMethod( tag );
-  }
-	// - subscribe this client
-  tag->addSubscription( myclient );
-	// - if we have connection subscriptions, inform about the new connection
-  server->sendWatchersConnectionInfo( tag, myclient, true );
+  server->subscribeToTag( myclient, tagname );
 	// - send confirmation
-  server->sendConfirmation( newaddr, "/XOSC/subscribe/tag", true );
+  server->sendConfirmation( newaddr, "/XOSC/subscribe", true );
     return 0;
 }
 
@@ -488,31 +427,108 @@ int XOscServer::unsubscribeTagHandler( handlerArgs )
     cout << "[XOscServer::unsubscribeTag] " + server->getContent( path, types, argv, argc ) << "\n";
 
   lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  
   XOscClient * myclient = server->clientExists( argv[0]->i, newaddr );
   if ( myclient == NULL ){
     server->sendConfirmation( newaddr, "/XOSC/unsubscribe/tag", true ); // did not succeed, as this was not a client yet
     return 0;
   }
   string tagname = &argv[1]->s;
-  XOscTag * tag = server->tagExists( tagname );
-  if ( tag == NULL ){
-    // tag did not exist, so we could not be subscribed to it;
-    server->sendConfirmation( newaddr, "/XOSC/unsubscribe/tag", true ); // did not succeed, as this was not a client yet
-    return 0;
-  }
-  // - if we have connection subscriptions, inform about the lost connection
-  server->sendWatchersConnectionInfo( tag, myclient, false );
-  tag->removeSubscription( myclient );
-  // tag has no subscriptions left, so remove method
-  if ( !tag->hasSubscriptions() ){
-    server->deleteMethod( tag );
-//     return 0;
-  }
+  
+  server->unsubscribeFromTag( myclient, tagname );
 	// - send confirmation
   server->sendConfirmation( newaddr, "/XOSC/unsubscribe/tag", true );
   return 0;
 }
 
+
+int XOscServer::subscribeHostHandler( handlerArgs )
+{ 
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+
+  if ( server->postDebug )
+    cout << "[XOscServer::subscribeHost] " + server->getContent( path, types, argv, argc ) << "\n";
+  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  
+  XOscClient * myclient = server->clientExists( argv[0]->i, newaddr );
+  if ( myclient == NULL ){
+    myclient = server->createNewClient( argv[0]->i, newaddr );
+  }
+  
+  lo_address hostaddr = lo_address_create_from( lo_address_get_hostname( &argv[1]->s ), argv[2]->i  );
+  
+  XOscHost * myhost;
+  if ( server->hostExists( hostaddr ) ){
+      hostMap::iterator iter = server->oscHosts.find( argv[2]->i );
+      myhost = iter->second;
+  } else {
+      myhost = server->createNewHost( hostaddr );
+  }
+
+  myhost->addSubscription( myclient );
+
+  server->sendConfirmation( newaddr, "/XOSC/subscribe/host", true );
+}
+
+int XOscServer::subscribeHostnameHandler( handlerArgs )
+{ 
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+
+  if ( server->postDebug )
+    cout << "[XOscServer::subscribeNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
+  
+  // TODO
+}
+
+int XOscServer::unsubscribeHostHandler( handlerArgs )
+{ 
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+
+  if ( server->postDebug )
+    cout << "[XOscServer::unsubscribeHost] " + server->getContent( path, types, argv, argc ) << "\n";
+  
+  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  
+  XOscClient * myclient = server->clientExists( argv[0]->i, newaddr );
+  if ( myclient == NULL ){
+    server->sendConfirmation( newaddr, "/XOSC/unsubscribe/host", true );
+    return 0;
+  }
+  
+  lo_address hostaddr = lo_address_create_from( lo_address_get_hostname( &argv[1]->s ), argv[2]->i  );
+
+  XOscHost * myhost;  
+  if ( server->hostExists( hostaddr ) ){
+      hostMap::iterator iter = server->oscHosts.find( argv[2]->i );
+      myhost = iter->second;
+  } else {
+      server->sendConfirmation( newaddr, "/XOSC/unsubscribe/host", true );
+      return 0;
+      //myhost = createNewHost( hostaddr );
+  }
+
+  myhost->removeSubscription( myclient );
+
+  server->sendConfirmation( newaddr, "/XOSC/unsubscribe/host", true );
+}
+
+int XOscServer::unsubscribeHostnameHandler( handlerArgs )
+{ 
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+
+  if ( server->postDebug )
+    cout << "[XOscServer::unsubscribeNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
+  
+  // TODO
+}
 
 int XOscServer::genericHandler( handlerArgs )
 {
@@ -614,6 +630,61 @@ void XOscServer::addBasicMethods()
 	// The generic handler must be added last. 
 	// Otherwise it would be called instead of the handlers. 
 	addMethod( NULL, NULL, genericHandler, this );
+}
+
+
+void XOscServer::subscribeToAllTags( XOscClient * client ){
+  tagMap::const_iterator end = oscTags.end(); 
+  for (tagMap::const_iterator it = oscTags.begin(); it != end; ++it) {
+      it->second->addSubscription( client );
+      sendWatchersConnectionInfo( it->second, client, true );  
+  }  
+}
+
+void XOscServer::unsubscribeFromAllTags( XOscClient * client ){
+  tagNameList * clientTags = client->getTags();
+  tagNameList::const_iterator end = clientTags->end(); 
+  for (tagNameList::const_iterator it = clientTags->begin(); it != end; ++it) {
+    XOscTag * xtag = tagExists( *it );
+    if ( xtag != NULL ){
+      sendWatchersConnectionInfo( xtag, client, true );
+      xtag->removeSubscription( client );
+      if ( !xtag->hasSubscriptions() ){
+	deleteMethod( xtag );
+      }
+    }
+  }  
+}
+
+void XOscServer::subscribeToTag( XOscClient * client, string tagname ){
+  XOscTag * tag = tagExists( tagname );
+  if ( tag == NULL ){
+      tag = createNewTag( tagname );
+  }
+	// - if no subscriptions yet, create a responder for the tag
+  if ( !tag->hasSubscriptions() ){
+      createMethod( tag );
+  }
+	// - subscribe this client
+  tag->addSubscription( client );
+	// - if we have connection subscriptions, inform about the new connection
+  sendWatchersConnectionInfo( tag, client, true );  
+}
+
+void XOscServer::unsubscribeFromTag( XOscClient * client, string tagname ){
+  XOscTag * tag = tagExists( tagname );
+  if ( tag == NULL ){
+    return;
+  }
+  // - if we have connection subscriptions, inform about the lost connection
+  sendWatchersConnectionInfo( tag, client, false );
+  tag->removeSubscription( client );
+  // tag has no subscriptions left, so remove method
+  if ( !tag->hasSubscriptions() ){
+    deleteMethod( tag );
+//     return 0;
+  }
+  return;
 }
 
 void XOscServer::sendConfirmation( lo_address targ, const char *path, bool success ){
