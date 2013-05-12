@@ -41,6 +41,8 @@
 using namespace std;
 
 namespace XOsc {
+
+  typedef std::map<string, int> portMap;
   
   typedef std::map<int, XOsc::XOscHost*> hostMap;     // order by port
 
@@ -63,6 +65,9 @@ private:
   clientMap oscClients;
   hostMap oscHosts;
   clientMap oscWatchers;
+  
+  portMap oscHostNames;
+  portMap oscClientNames;
   
   void createMethod( XOscTag * osctag );
   void deleteMethod( XOscTag * osctag );
@@ -103,12 +108,18 @@ private:
   bool clientExistsAndChangeName( int port, lo_address addr, string name );
   XOscClient* createNewClient( int port, lo_address addr, string name );  
   XOscClient* createNewClient( int port, lo_address addr );
+  void addClientName( int port, string name );
+  void deleteClientName( string name );
+  XOscClient * findClientByName( string name );
   
-  bool hostExists( lo_address addr );
-  bool hostExistsAndChangeName( lo_address addr, string name );
-  XOscHost* createNewHost( lo_address addr, string name );
-  XOscHost* createNewHost( lo_address addr );
-  XOscHost* getHost( lo_address addr );
+  XOscHost*  hostExists( int port, lo_address addr );
+  bool hostExistsAndChangeName( int port, lo_address addr, string name );
+  XOscHost* createNewHost( int port, lo_address addr, string name );
+  XOscHost* createNewHost( int port, lo_address addr );
+  XOscHost* getHost( int port, lo_address addr );
+  void addHostName( int port, string name );
+  void deleteHostName( string name );
+  XOscHost * findHostByName( string name );
   
 // 	void sendSimpleMessage( const char *path );
 // 	void handleError( int errorid, const char *errorMsg, const char *prefix );

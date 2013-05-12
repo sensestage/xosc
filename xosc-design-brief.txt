@@ -29,16 +29,16 @@ IMPLEMENTATION AND INTERFACE
 
 * OSC interface:
 
-/XOSC/register/client - provide a name for host/port combination - for labeling in interface (confirm w/ bool)
-/XOSC/register/host - provide a name for host/port combination - for labeling in interface (confirm w/ bool)
+/XOSC/register/client - provide a name for host/port combination - for labeling in interface (args: (opt) port to send messages to) (confirm w/ bool)
+/XOSC/register/host - provide a name for host/port combination - for labeling in interface (args: (opt) port to send messages to) (confirm w/ bool)
 
-/XOSC/register/watch - register to be informed about connections and tags (args: port to send messages to) (confirm w/ bool)
-/XOSC/unregister/watch - unregister to be informed about connections and tags (args: port to send messages to) (confirm w/ bool)
+/XOSC/register/watch - register to be informed about connections and tags (args: (opt) port to send messages to) (confirm w/ bool)
+/XOSC/unregister/watch - unregister to be informed about connections and tags (args: (opt) port to send messages to) (confirm w/ bool)
 
 
-/XOSC/query/tags - query the available tags (args: port to send data back to)
-/XOSC/query/connections - query the set connections (args: port to send data back to)
-/XOSC/query/tag/connections - query connections for specific tag (args: port to send data back to, tag to query)
+/XOSC/query/tags - query the available tags (args: (opt) port to send data back to)
+/XOSC/query/connections - query the set connections (args: (opt) port to send data back to)
+/XOSC/query/tag/connections - query connections for specific tag (args: tag to query, (opt) port to send data back to)
 
 /XOSC/info/tag - tagname, sender ip, sender port, sender name (if any)
 /XOSC/info/tag/connection - tagname, sender ip, sender port, sender name, receiver ip, receiver port, receiver name (if any)
@@ -46,17 +46,17 @@ IMPLEMENTATION AND INTERFACE
 /XOSC/info/host - sender ip, sender port, sender name (if any)
 /XOSC/info/client - receiver ip, port, name (if any)
 
-/XOSC/subscribe/tag - make a connection to yourself for specific tag (args: port to send messages to, tag to connect) (confirm w/ bool)
-/XOSC/unsubscribe/tag - break a connection to yourself for specific tag (args: port to send messages to, tag to connect) (confirm w/ bool)
+/XOSC/subscribe/tag - make a connection to yourself for specific tag (args: tag to connect, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/unsubscribe/tag - break a connection to yourself for specific tag (args: tag to connect, (opt) port to send messages to) (confirm w/ bool)
 
-/XOSC/subscribe/host - make a connection to yourself for messages from specific host (args: port to send messages to, host ip, port to connec to) (confirm w/ bool)
-/XOSC/unsubscribe/host - break a connection to yourself for messages from specific host (args: port to send messages to, host ip, port to connec to) (confirm w/ bool)
+/XOSC/subscribe/host - make a connection to yourself for messages from specific host (args: host ip, port to connect to, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/unsubscribe/host - break a connection to yourself for messages from specific host (args: host ip, port to connect to, (opt) port to send messages to) (confirm w/ bool)
 
-/XOSC/connect/tag - make a connection for specific tag and host/port (args: tag, target host, target port) (confirm w/ bool)
-/XOSC/disconnect/tag - break a connection for specific tag and host/port (args: tag, target host, target port) (confirm w/ bool)
+/XOSC/connect/tag - make a connection for specific tag and host/port (args: tag, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/disconnect/tag - break a connection for specific tag and host/port (args: tag, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 
-/XOSC/connect/host - make a connection for specific sender and host/port (args: source host, source port, target host, target port) (confirm w/ bool)
-/XOSC/disconnect/host - break a connection for specific sender and host/port (args: source host, source port, target host, target port) (confirm w/ bool)
+/XOSC/connect/host - make a connection for specific sender and host/port (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/disconnect/host - break a connection for specific sender and host/port (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 
 ------- advanced -------
 * tag renaming/filtering/mapping (a la libmapper - see how far this needs to go)
