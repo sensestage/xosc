@@ -1,6 +1,6 @@
 XOSC
 
-Connect different OSC capable programs, considering the situation where you have two programs talking via OSC, but then want to have a third or fourth application, also using OSC from those same applications, without having to rewrite code.
+Connect different OSC capable programs, considering the situation where you have two programs talking via OSC, but then want to have a third or fourth application to also use OSC from those same applications, without having to rewrite code.
 
 Solution:
 Just change the target host/port to send OSC to, to XOSC, and XOSC will allow you to patch OSC between applications.
