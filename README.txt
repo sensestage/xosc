@@ -12,9 +12,10 @@ liblo - http://liblo.sourceforge.net
 ==== Running: ====
 
 $ ./xoscmain 57300
-(will listen on port 57300 for incoming OSC messages.
+will listen on port 57300 for incoming OSC messages.
 
 ==== OSC interface: ====
-See xosc-design-brief.txt.
+See xosc-design-brief.txt
 
-
+==== TODO list ====
+See TODO.txt

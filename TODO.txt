@@ -5,4 +5,14 @@ TO ADD:
  - keep a list of hostnames/clientnames
 
 -- to add: /query/connections/client
- -- question: how to store connections, or iterate over tags and hosts... 
+ -- question: how to store connections, or iterate over tags and hosts...
+ 
+ 
+ 
+TO FIX:
+
+Currently clients and hosts are kept in memory based on their port
+number, so possibly there are conflicts when mapping between different
+hosts. This should be fixed by providing a different lookup method.
+
+Similarly multiple clients sending the same tags might provide problems.
