@@ -37,6 +37,8 @@ namespace XOsc {
   }
 
   lo_address XOscClient::getAddress(){
+//       string port = string( lo_address_get_port(hostAddress) );
+//       string ip = string( lo_address_get_hostname(hostAddress) );
       return hostAddress;
   }
   

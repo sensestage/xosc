@@ -1,6 +1,8 @@
 TODO list:
  
 TO ADD: 
--- connections by hostname
- - keep a list of hostnames!
--- to add: /query/connections/host
+-- connections by hostname/clientname
+ - keep a list of hostnames/clientnames
+
+-- to add: /query/connections/client
+ -- question: how to store connections, or iterate over tags and hosts... 
