@@ -23,11 +23,12 @@ IMPLEMENTATION AND INTERFACE
 
 * generic OSC handler 
   which listens to incoming OSC messages, and stores the address-tags, with info from where they came (host+port), and what type tags they have. Either of these characteristics can change per address-tag.
-  
-"/play/song" 1 8.0
+  - register an OSC handler, which will forward the message to the indicated host/port
+  - and be able to remove it again when a connection is broken
 
 
-* OSC interface:
+* OSC interface to manage connections
+(- not implemented yet; ? still considering whether to implement)
 
 /XOSC/register/client - provide a name for host/port combination - for labeling in interface (args: (opt) port to send messages to) (confirm w/ bool)
 /XOSC/register/host - provide a name for host/port combination - for labeling in interface (args: (opt) port to send messages to) (confirm w/ bool)
@@ -42,7 +43,7 @@ IMPLEMENTATION AND INTERFACE
 /XOSC/query/connections - query the set connections (args: (opt) port to send data back to)
 /XOSC/query/connections/tag - query connections for specific tag (args: tag to query, (opt) port to send data back to)
 /XOSC/query/connections/host - query connections for specific host (args: host ip, host port, (opt) port to send data back to)
-/XOSC/query/connections/hostname - query connections for specific hostname (args: hostname, (opt) port to send data back to)
+- /XOSC/query/connections/hostname - query connections for specific hostname (args: hostname, (opt) port to send data back to)
 ? /XOSC/query/connections/client - query connections for specific client (args: host ip, host port, (opt) port to send data back to)
 ? /XOSC/query/connections/clientname - query connections for specific clientname (args: hostname, (opt) port to send data back to)
 
@@ -57,21 +58,18 @@ IMPLEMENTATION AND INTERFACE
 
 /XOSC/subscribe/host - make a connection to yourself for messages from specific host (args: host ip, port to connect to, (opt) port to send messages to) (confirm w/ bool)
 /XOSC/unsubscribe/host - break a connection to yourself for messages from specific host (args: host ip, port to connect to, (opt) port to send messages to) (confirm w/ bool)
+- /XOSC/subscribe/hostname - make a connection to yourself for messages from specific host (args: host ip, port to connect to, (opt) port to send messages to) (confirm w/ bool)
+- /XOSC/unsubscribe/hostname - break a connection to yourself for messages from specific host (args: host ip, port to connect to, (opt) port to send messages to) (confirm w/ bool)
 
-/XOSC/connect/tag - make a connection for specific tag and host/port (args: tag, target host, target port, (opt) port to send messages to) (confirm w/ bool)
-/XOSC/disconnect/tag - break a connection for specific tag and host/port (args: tag, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/connect/tag - make a connection for specific tag and host/port (args: target host, target port, tag, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/disconnect/tag - break a connection for specific tag and host/port (args: target host, target port, tag, (opt) port to send messages to) (confirm w/ bool)
 
 /XOSC/connect/host - make a connection for specific sender and host/port (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 /XOSC/disconnect/host - break a connection for specific sender and host/port (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 
-/XOSC/connect/hostname - make a connection for specific sender and hostname (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
-/XOSC/disconnect/hostname - break a connection for specific sender and hostname (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+- /XOSC/connect/hostname - make a connection for specific sender and hostname (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+- /XOSC/disconnect/hostname - break a connection for specific sender and hostname (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 
-
-
-* connections - implementation:
-- register an OSC handler, which will forward the message to the indicated host/port
-- and be able to remove it again when a connection is broken
 
 
 ------- advanced -------
