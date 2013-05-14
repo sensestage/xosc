@@ -53,6 +53,7 @@ string XOscTag::getTag(){
 void XOscTag::setOrigin( XOscHost * host ){
     origin = host;
     originSet = true;
+    host->addTag( tagname );
 }
 
 bool XOscTag::compareOrigin( lo_address addr ){
@@ -137,10 +138,9 @@ void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target, 
   
   lo_message msg = getSingleConnectionInfoMsg( client, connected );
   
-  server->sendMessage( target, "/XOSC/info/tag/connection", msg );
+  server->sendMessage( target, "/XOSC/info/connection/tag", msg );
   
-  lo_message_free( msg );
-  
+  lo_message_free( msg ); 
 }
 
 void XOscTag::sendConnectionInfo( lo_address target ){
@@ -151,7 +151,11 @@ void XOscTag::sendConnectionInfo( lo_address target ){
 }
 
 bool XOscTag::hasSubscriptions( ){
-  return subscribers.size() > 0;
+  bool ret;
+  if ( originSet ){
+      ret = origin->hasSubscriptions();
+  }
+  return (subscribers.size() > 0) || ret;
 }
 
 void XOscTag::addSubscription( XOscClient * client ){

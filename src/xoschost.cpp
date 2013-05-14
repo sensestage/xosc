@@ -45,6 +45,15 @@ XOscHost::~XOscHost()
 {
 }
 
+void XOscHost::setServer( XOscServer * serv ){
+    server = serv;
+}
+
+XOscServer * XOscHost::getServer(){
+    return server;
+}
+
+
 lo_address XOscHost::getAddress(){
      return hostAddress;
 }
@@ -70,6 +79,45 @@ lo_message XOscHost::getHostInfoMsg(){
     return msg;
 }
 
+lo_message XOscHost::getSingleConnectionInfoMsg( XOscClient * client, bool connected ){
+  lo_address clientAddress = client->getAddress();
+
+  lo_message msg = lo_message_new();
+  
+  lo_message_add_string( msg, lo_address_get_hostname( hostAddress ) );
+  lo_message_add_string( msg, lo_address_get_port( hostAddress ) );
+  lo_message_add_string( msg, name.c_str() );
+
+  lo_message_add_string( msg, lo_address_get_hostname( clientAddress ) );
+  lo_message_add_string( msg, lo_address_get_port( clientAddress ) );
+  lo_message_add_string( msg, client->getName().c_str() );
+  
+  if ( connected )
+    lo_message_add_true( msg );
+  else
+    lo_message_add_false( msg );
+  
+  return msg;
+}
+
+
+void XOscHost::sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected ){
+  lo_address clientAddress = client->getAddress();
+  
+  lo_message msg = getSingleConnectionInfoMsg( client, connected );
+  
+  server->sendMessage( target, "/XOSC/info/connection/host", msg );
+  
+  lo_message_free( msg ); 
+}
+
+void XOscHost::sendConnectionInfo( lo_address target ){
+  clientMap::const_iterator end = subscribers.end(); 
+  for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
+    sendSingleConnectionInfo( it->second, target );
+  }
+}
+
 // void XOscHost::addTag( XOscTag * tag ){
 //   sendingTags.insert( make_pair( tag->getTag(), tag ) );    
 // }
@@ -89,41 +137,17 @@ lo_message XOscHost::getHostInfoMsg(){
     }
   }
 
-void XOscHost::sendInfoAboutTags( lo_address * target ){
+// void XOscHost::sendInfoAboutTags( lo_address * target ){
   // TODO: Iterate over tags and call sendTagInfo on it
 //   tagMap::const_iterator end = sendingTags.end(); 
 //   for (tagMap::const_iterator it = sendingTags.begin(); it != end; ++it) {
 //       it->second->sendTagInfo( target );
 //   }
+// }
+
+bool XOscHost::hasSubscriptions(){
+    return subscribers.size() > 0;
 }
-
-// void XOscHost::sendSingleConnectionInfo( XOscServer * server, XOscClient * client, lo_address * target ){
-// 
-//   lo_message msg = lo_message_new();
-// //   lo_message_add_string( msg, tagname.c_str() );
-// 
-//   lo_message_add_string( msg, lo_address_get_hostname( hostAddress ) );
-//   lo_message_add_string( msg, lo_address_get_port( hostAddress ) );
-//   lo_message_add_string( msg, name.c_str() );
-// 
-//   lo_address * clientAddress = client->getAddress();
-//   lo_message_add_string( msg, lo_address_get_hostname( clientAddress ) );
-//   lo_message_add_string( msg, lo_address_get_port(clientAddress ) );
-//   lo_message_add_string( msg, client->getName().c_str() );
-//   
-//   server->sendMessage( target, "/XOSC/info/connection", msg );
-//   
-//   lo_message_free( msg );
-//   
-// }
-// 
-// void XOscHost::sendConnectionInfo( XOscServer * server, lo_address * target ){
-//   clientMap::const_iterator end = subscribers.end(); 
-//   for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
-//     sendSingleConnectionInfo( server, it->second, target );
-//   }
-// }
-
 
 void XOscHost::addSubscription( XOscClient * client ){
   subscribers.insert( make_pair(client->getPort(), client) );

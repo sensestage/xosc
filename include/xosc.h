@@ -88,12 +88,16 @@ private:
   void sendWatchersHostInfo( XOscHost* host );  
   void sendWatchersTagInfo( XOscTag* xtag );  
   void sendWatchersConnectionInfo( XOscTag* xtag, XOscClient * client, bool gotconnected );
+  void sendWatchersConnectionInfo( XOscHost * host, XOscClient * client, bool gotconnected );
 
   void subscribeToAllTags( XOscClient * client );
   void unsubscribeFromAllTags( XOscClient * client );
   
   void subscribeToTag( XOscClient * client, string tagname );
   void unsubscribeFromTag( XOscClient * client, string tagname );
+  
+  void subscribeToHost( XOscClient * client, XOscHost * host );
+  void unsubscribeFromHost( XOscClient * client, XOscHost * host );
   
   XOscTag* tagExists( string name );  
   bool tagCheckAndChangeOrigin( XOscTag* xtag, lo_address originAddress );

@@ -37,12 +37,16 @@ IMPLEMENTATION AND INTERFACE
 
 
 /XOSC/query/tags - query the available tags (args: (opt) port to send data back to)
+/XOSC/query/hosts - query the available hosts (args: (opt) port to send data back to)
+/XOSC/query/clients - query the present clients (args: (opt) port to send data back to)
 /XOSC/query/connections - query the set connections (args: (opt) port to send data back to)
-/XOSC/query/tag/connections - query connections for specific tag (args: tag to query, (opt) port to send data back to)
+/XOSC/query/connections/tag - query connections for specific tag (args: tag to query, (opt) port to send data back to)
+/XOSC/query/connections/host - query connections for specific host (args: host ip, host port, (opt) port to send data back to)
+/XOSC/query/connections/hostname - query connections for specific hostname (args: hostname, (opt) port to send data back to)
 
 /XOSC/info/tag - tagname, sender ip, sender port, sender name (if any)
-/XOSC/info/tag/connection - tagname, sender ip, sender port, sender name, receiver ip, receiver port, receiver name (if any)
-/XOSC/info/connection - tagname, sender ip, port, name (if any), receiver ip, receiver port, receiver name (if any)
+/XOSC/info/connection/tag - tagname, sender ip, sender port, sender name, receiver ip, receiver port, receiver name (if any)
+/XOSC/info/connection/host - tagname, sender ip, port, name (if any), receiver ip, receiver port, receiver name (if any)
 /XOSC/info/host - sender ip, sender port, sender name (if any)
 /XOSC/info/client - receiver ip, port, name (if any)
 

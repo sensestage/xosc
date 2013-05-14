@@ -33,6 +33,9 @@ using namespace std;
 using namespace XOsc;
 
 namespace XOsc {
+  
+//   class XOscServer;
+
 
   class XOscHost {
 public:
@@ -44,10 +47,14 @@ public:
     string getName();
     void unsetName();
     
+    void setServer( XOscServer * serv );
+    XOscServer * getServer();
+
     //void addTag( XOscTag * tag );
     void addTag( string tagname );
     tagNameList * getTags();
     
+    bool hasSubscriptions();
     void addSubscription( XOscClient * client );    // client
     void removeSubscription( XOscClient * client ); // client    
     
@@ -56,9 +63,10 @@ public:
     void sendInfoAboutTags( lo_address * target );
     
     lo_message getHostInfoMsg();
+    lo_message getSingleConnectionInfoMsg( XOscClient * client, bool connected=true );
     
-//     void sendSingleConnectionInfo( XOscServer * server, XOscClient * client, lo_address * target );
-//     void sendConnectionInfo( XOscServer * server, lo_address * target );
+    void sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected=true );
+    void sendConnectionInfo( lo_address target );
     
     ~XOscHost();
 
@@ -66,7 +74,8 @@ private:
 //  tagMap sendingTags;    // tags I'm sending
   tagNameList sendingTags;    // tags I'm sending
   clientMap subscribers; // subscribers to this host
-  
+  XOscServer * server;
+
   string name;
   lo_address hostAddress;
 };

@@ -8,13 +8,22 @@ n.sendMsg( "/hello/world", 1 );
 n.sendMsg( "/XOSC/query/tags" );
 n.sendMsg( "/XOSC/query/tags", NetAddr.langPort );
 
-n.sendMsg( "/XOSC/query/tag/connections", "/hello",NetAddr.langPort );
-n.sendMsg( "/XOSC/query/connections", NetAddr.langPort );
-n.sendMsg( "/XOSC/query/tag/connections", "/hello/world", NetAddr.langPort );
+// n.sendMsg( "/XOSC/query/clients" );
+// n.sendMsg( "/XOSC/query/clients", NetAddr.langPort );
 
-n.sendMsg( "/XOSC/query/tag/connections", "/hello" );
+// n.sendMsg( "/XOSC/query/hosts" );
+// n.sendMsg( "/XOSC/query/hosts", NetAddr.langPort );
+
+n.sendMsg( "/XOSC/query/connections", NetAddr.langPort );
+n.sendMsg( "/XOSC/query/connections/tag", "/hello",NetAddr.langPort );
+n.sendMsg( "/XOSC/query/connections/tag", "/hello/world", NetAddr.langPort );
+// n.sendMsg( "/XOSC/query/connections/host", "127.0.0.1", 57120, NetAddr.langPort );
+// n.sendMsg( "/XOSC/query/connections/hostname", "supercollider", NetAddr.langPort );
+
 n.sendMsg( "/XOSC/query/connections" );
-n.sendMsg( "/XOSC/query/tag/connections", "/hello/world" );
+n.sendMsg( "/XOSC/query/connections/tag", "/hello" );
+// n.sendMsg( "/XOSC/query/connections/host", "127.0.0.1", 57120 );
+// n.sendMsg( "/XOSC/query/connections/hostname", "supercollider" );
 
 n.sendMsg( "/hello", 1 );
 n.sendMsg( "/XOSC/subscribe/tag", "/hello" );
