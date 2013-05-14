@@ -59,7 +59,7 @@ public:
 
     void        addMethod ( const char* path, const char* types, lo_method_handler h, void* user_data = NULL );
     void        removeMethod ( const char* path, const char* types );
-    std::string getContent( const char* path, const char* types, lo_arg** argv, int argc );
+    std::string getContent( const char* path, const char* types, lo_arg** argv, int argc, lo_address addr = NULL );
 
     lo_server_thread serverThread;
     lo_server server;

@@ -27,14 +27,14 @@ bool lo_address_issame( lo_address a, lo_address b )
 }
 
 lo_address lo_address_copy( lo_address addr ){
-//   char buffer [8];
+//   char buffer [5];
 //   sprintf(buffer,"%d",port ); 
   lo_address newaddr = lo_address_new( lo_address_get_hostname( addr ), lo_address_get_port( addr ) ); 
   return newaddr;
 }
 
 lo_address lo_address_create_from( const char * host, int port ){
-  char buffer [8];
+  char buffer [5];
   sprintf(buffer,"%d",port ); 
   lo_address newaddr = lo_address_new( host, buffer ); 
   return newaddr;

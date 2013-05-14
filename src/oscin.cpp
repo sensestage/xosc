@@ -149,7 +149,7 @@ lo_message OSCServer::getMessage( const char* types, lo_arg** argv, int argc)
 */
 
 
-std::string OSCServer::getContent(const char* path, const char* types, lo_arg** argv, int argc)
+std::string OSCServer::getContent(const char* path, const char* types, lo_arg** argv, int argc, lo_address addr )
 {
     std::ostringstream contents;
 
@@ -170,5 +170,12 @@ std::string OSCServer::getContent(const char* path, const char* types, lo_arg** 
         }
         contents << "   ";
     }
+    if ( addr != NULL ){
+      contents << "from: ";
+      contents << lo_address_get_url( addr);
+//       contents << ":";
+//       contents << lo_address_get_port( addr );
+    }
     return contents.str();
 }
+

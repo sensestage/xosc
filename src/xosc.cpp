@@ -47,7 +47,7 @@ int XOscServer::registerClientHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
   if ( server->postDebug ){
- 	cout << "[XOscServer:client register]: " + server->getContent( path, types, argv, argc ) + "from:" + (string)( lo_address_get_hostname( addr) ) + (string)( lo_address_get_port( addr ) ) + "\n";
+ 	cout << "[XOscServer:client register]: " + server->getContent( path, types, argv, argc, addr ) + "\n";
   }
   
   lo_address newaddr = addr;
@@ -71,7 +71,7 @@ int XOscServer::registerOtherClientHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
   if ( server->postDebug ){
- 	cout << "[XOscServer:client register]: " + server->getContent( path, types, argv, argc ) + "from:" + (string)( lo_address_get_hostname( addr) ) + (string)( lo_address_get_port( addr ) ) + "\n";
+ 	cout << "[XOscServer:client register]: " + server->getContent( path, types, argv, argc, addr ) + "\n";
   }
   
 //  lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
@@ -96,7 +96,7 @@ int XOscServer::registerHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
     
   if ( server->postDebug ){
- 	cout << "[XOscServer:host register]: " + server->getContent( path, types, argv, argc ) + "from:" + (string)(lo_address_get_hostname( addr) ) + (string) (lo_address_get_port( addr ) ) << "\n";
+ 	cout << "[XOscServer:host register]: " + server->getContent( path, types, argv, argc, addr ) + "\n";
   }
   lo_address newaddr = addr;
   int port;
@@ -120,9 +120,11 @@ int XOscServer::registerOtherHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
     
   if ( server->postDebug ){
- 	cout << "[XOscServer:host register]: " + server->getContent( path, types, argv, argc ) + "from:" + (string)(lo_address_get_hostname( addr) ) + (string) (lo_address_get_port( addr ) ) << "\n";
+ 	cout << "[XOscServer:host register]: " + server->getContent( path, types, argv, argc, addr ) + "\n";
   }
-  lo_address newaddr = lo_address_create_from( &argv[0]->s, argv[1]->i  );
+  lo_address newaddr = lo_address_create_from( &argv[0]->s, argv[1]->i );
+  lo_address_get_port_as_int( newaddr );
+  
   lo_address retaddr = addr;
   if ( argc == 4 ){
     retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[3]->i  );
@@ -159,7 +161,7 @@ int XOscServer::queryTagsHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryTags] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryTags] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   lo_address newaddr = addr;
   if ( argc == 1 ){
     newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
@@ -177,7 +179,7 @@ int XOscServer::queryHostsHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryHosts] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryHosts] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   lo_address newaddr = addr;
   if ( argc == 1 ){
     newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
@@ -195,7 +197,7 @@ int XOscServer::queryClientsHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryClients] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryClients] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   lo_address newaddr = addr;
   if ( argc == 1 ){
     newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
@@ -214,7 +216,7 @@ int XOscServer::queryConnectionsTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryConnectionsTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryConnectionsTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address newaddr = addr;
   if ( argc == 2 ){
@@ -236,7 +238,7 @@ int XOscServer::queryConnectionsHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryConnectionsHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryConnectionsHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address hostaddr = lo_address_create_from( &argv[0]->s, argv[1]->i );
   
@@ -263,7 +265,7 @@ int XOscServer::queryConnectionsHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryConnectionsHostname] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryConnectionsHostname] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address newaddr = addr;
   if ( argc == 2 ){
@@ -333,7 +335,7 @@ int XOscServer::queryConnectionsHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
     if ( server->postDebug )
-    	cout << "[XOscServer::queryConnections] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::queryConnections] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address newaddr = addr;
   if ( argc == 1 ){
@@ -352,7 +354,7 @@ int XOscServer::registerWatchHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    	cout << "[XOscServer::registerWatch] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::registerWatch] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   if ( argc == 1 ){
     lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
@@ -373,7 +375,7 @@ int XOscServer::unregisterWatchHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    	cout << "[XOscServer::unregisterWatch] " + server->getContent( path, types, argv, argc ) << "\n";
+    	cout << "[XOscServer::unregisterWatch] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   if ( argc == 1 ){
     lo_address newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
@@ -394,7 +396,7 @@ int XOscServer::connectHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::connectHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::connectHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // host ip, port, client ip, port
   lo_address clientaddr = lo_address_create_from( &argv[2]->s, argv[3]->i  );
@@ -411,7 +413,6 @@ int XOscServer::connectHostHandler( handlerArgs )
   
   server->subscribeToHost( myclient, myhost );
 
-  //bool res = server->registerHost( newaddr, (string) &argv[3]->s );
   if ( argc == 5 ){
     lo_address retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[4]->i  );
     server->sendConfirmation( retaddr, "/XOSC/connect/host", true );
@@ -430,7 +431,7 @@ int XOscServer::disconnectHostHandler( handlerArgs )
   lo_address retaddr = addr;
   
   if ( server->postDebug )
-    cout << "[XOscServer::disconnectHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::disconnectHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   if ( argc == 5 ){
     retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[4]->i  );
   }
@@ -454,11 +455,9 @@ int XOscServer::disconnectHostHandler( handlerArgs )
 
   server->unsubscribeFromHost( myclient, myhost );
 
-//   myhost->removeSubscription( myclient );
-
   server->sendConfirmation( retaddr, "/XOSC/disconnect/host", true );
-  //bool res = server->registerHost( newaddr, (string) &argv[3]->s );
   if ( argc == 5 ){ lo_address_free( retaddr ); }
+  return 0;
 }
 
 int XOscServer::connectHostnameHandler( handlerArgs )
@@ -468,7 +467,7 @@ int XOscServer::connectHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::connectNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::connectNameHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -480,7 +479,7 @@ int XOscServer::disconnectHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::disconnectNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::disconnectNameHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -493,7 +492,7 @@ int XOscServer::connectHostnameHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::connectNameHostHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::connectNameHostHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -505,7 +504,7 @@ int XOscServer::disconnectHostnameHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::disconnectNameHostHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::disconnectNameHostHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -517,7 +516,7 @@ int XOscServer::connectHostnameHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::connectNameHostHostname] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::connectNameHostHostname] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -529,7 +528,7 @@ int XOscServer::disconnectHostnameHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::disconnectNameHostHostname] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::disconnectNameHostHostname] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -542,7 +541,7 @@ int XOscServer::connectTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::connectTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::connectTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // tag, client ip, port
   lo_address clientaddr = lo_address_create_from( &argv[0]->s, argv[1]->i  );
@@ -554,7 +553,6 @@ int XOscServer::connectTagHandler( handlerArgs )
   string tagname = &argv[2]->s;
   server->subscribeToTag( myclient, tagname );
 
-  //bool res = server->registerHost( newaddr, (string) &argv[3]->s );
   if ( argc == 4 ){
     lo_address retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[3]->i  );
     server->sendConfirmation( retaddr, "/XOSC/connect/tag", true );
@@ -572,7 +570,7 @@ int XOscServer::disconnectTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::disconnectTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::disconnectTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address retaddr;
   if ( argc == 4 ){
@@ -602,7 +600,7 @@ int XOscServer::connectHostnameTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::connectNameHostTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::connectNameHostTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -614,7 +612,7 @@ int XOscServer::disconnectHostnameTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::disconnectNameHostTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::disconnectNameHostTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
 }
@@ -656,7 +654,7 @@ int XOscServer::unsubscribeHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::unsubscribe] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::unsubscribe] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address retaddr;
   int port;
@@ -685,7 +683,7 @@ int XOscServer::subscribeTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::subscribeTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::subscribeTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address retaddr;
   int port;
@@ -715,7 +713,7 @@ int XOscServer::unsubscribeTagHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
   
   if ( server->postDebug )
-    cout << "[XOscServer::unsubscribeTag] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::unsubscribeTag] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   lo_address retaddr;
   int port;
@@ -749,7 +747,7 @@ int XOscServer::subscribeHostHandler( handlerArgs )
   int port;
 
   if ( server->postDebug )
-    cout << "[XOscServer::subscribeHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::subscribeHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
 
   if ( argc == 3 ){
     retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[2]->i  );
@@ -785,7 +783,7 @@ int XOscServer::subscribeHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::subscribeNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::subscribeNameHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   return 0;
 }
@@ -799,7 +797,7 @@ int XOscServer::unsubscribeHostHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::unsubscribeHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::unsubscribeHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   if ( argc == 3 ){
     retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[2]->i  );
@@ -838,7 +836,7 @@ int XOscServer::unsubscribeHostnameHandler( handlerArgs )
   XOscServer* server = ( XOscServer* ) user_data;
 
   if ( server->postDebug )
-    cout << "[XOscServer::unsubscribeNameHost] " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::unsubscribeNameHost] " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO
   return 0;
@@ -854,7 +852,7 @@ int XOscServer::genericHandler( handlerArgs )
   string tag = string( path );
   
   if ( server->postDebug )
-    cout << "[XOscServer::genericHandler] arbitrary osc tag: " + server->getContent( path, types, argv, argc ) << "\n";
+    cout << "[XOscServer::genericHandler] arbitrary osc tag: " + server->getContent( path, types, argv, argc, addr ) << "\n";
   
   // TODO: 
   //   - store some more info about it? (types?)
@@ -1006,7 +1004,6 @@ void XOscServer::unsubscribeFromAllTags( XOscClient * client ){
 }
 
 void XOscServer::subscribeToHost( XOscClient * client, XOscHost * host ){
-
   XOscTag * tag;
   tagNameList * tags = host->getTags();
   // iterate over tags to set message
@@ -1026,8 +1023,8 @@ void XOscServer::subscribeToHost( XOscClient * client, XOscHost * host ){
 }
 
 void XOscServer::unsubscribeFromHost( XOscClient * client, XOscHost * host ){
-
   XOscTag * tag;
+  sendWatchersConnectionInfo( host, client, false );
   host->removeSubscription( client );
   tagNameList * tags = host->getTags();
   // iterate over tags to set message
@@ -1041,7 +1038,6 @@ void XOscServer::unsubscribeFromHost( XOscClient * client, XOscHost * host ){
       deleteMethod( tag );
     }
   }
-  sendWatchersConnectionInfo( host, client, false );
 }
 
 void XOscServer::subscribeToTag( XOscClient * client, string tagname ){
@@ -1087,6 +1083,7 @@ void XOscServer::sendConfirmation( lo_address targ, const char *path, bool succe
 
 bool XOscServer::registerClient( lo_address clientAddr, int port, string name ){
   if ( clientExistsAndChangeName( port, clientAddr, name ) ){
+      sendWatchersClientInfo( clientExists(port,clientAddr) );
       return true; // was already registered
   }
   XOscClient * client = createNewClient( port, clientAddr, name );
@@ -1097,9 +1094,11 @@ bool XOscServer::registerClient( lo_address clientAddr, int port, string name ){
 bool XOscServer::registerHost( lo_address hostAddr, string name ){
   int port = lo_address_get_port_as_int(hostAddr);
   if ( hostExistsAndChangeName( port, hostAddr, name ) ){
+      sendWatchersHostInfo( hostExists(port,hostAddr) );
       return true; // was already registered
   }
   XOscHost * host = createNewHost( port, hostAddr, name );
+  sendWatchersHostInfo( host );
   return true;
 }
 

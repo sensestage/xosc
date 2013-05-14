@@ -146,7 +146,7 @@ bool XOscTag::sendConnectionInfo( lo_address target ){
   for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
     sendSingleConnectionInfo( it->second, target );
   }
-  return hasSubscriptions();
+  return (subscribers.size() > 0);
 }
 
 bool XOscTag::hasSubscriptions( ){
