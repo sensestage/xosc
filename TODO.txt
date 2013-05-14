@@ -1,15 +1,6 @@
 TODO list:
-
-
-TO FIX: 
-+ subscribe/host not working yet
-
-TO TEST:
--- test connect messages
-
  
 TO ADD: 
 -- connections by hostname
  - keep a list of hostnames!
-
 -- to add: /query/connections/host

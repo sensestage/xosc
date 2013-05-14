@@ -80,9 +80,13 @@ private:
   bool registerWatcher( lo_address clientAddr, int port );
   bool unregisterWatcher( lo_address clientAddr, int port );
   
-  void sendTagInfo( lo_address addr ); // FIXME
-  void sendConnectionInfo( lo_address addr ); // FIXME
-  void sendConnectionTagInfo( lo_address addr, string name ); // FIXME
+  void sendTagsInfo( lo_address addr );
+  void sendHostsInfo( lo_address addr );
+  void sendClientsInfo( lo_address addr );
+  void sendConnectionsInfo( lo_address addr );
+  void sendConnectionTagInfo( lo_address addr, string name );
+  void sendConnectionHostInfo( lo_address addr, XOscHost * host );
+//   void sendConnectionClientInfo( lo_address addr, XOscClient * client );
   
   void sendWatchersClientInfo( XOscClient* client );  
   void sendWatchersHostInfo( XOscHost* host );  
@@ -146,8 +150,15 @@ private:
 	static int unregisterWatchHandler( handlerArgs ); // to be automatically informed about connections and new tags
 
 	static int queryTagsHandler( handlerArgs );
-	static int queryConnectionsTagHandler( handlerArgs );
+	static int queryHostsHandler( handlerArgs );
+	static int queryClientsHandler( handlerArgs );
 	static int queryConnectionsHandler( handlerArgs );
+	
+	static int queryConnectionsTagHandler( handlerArgs );
+	static int queryConnectionsHostHandler( handlerArgs );
+	static int queryConnectionsHostnameHandler( handlerArgs );
+// 	static int queryConnectionsClientHandler( handlerArgs );
+// 	static int queryConnectionsClientnameHandler( handlerArgs );
 
 	static int subscribeHandler( handlerArgs ); // all
 	static int unsubscribeHandler( handlerArgs ); // all

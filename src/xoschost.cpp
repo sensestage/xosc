@@ -101,9 +101,7 @@ lo_message XOscHost::getSingleConnectionInfoMsg( XOscClient * client, bool conne
 }
 
 
-void XOscHost::sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected ){
-  lo_address clientAddress = client->getAddress();
-  
+void XOscHost::sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected ){  
   lo_message msg = getSingleConnectionInfoMsg( client, connected );
   
   server->sendMessage( target, "/XOSC/info/connection/host", msg );
@@ -111,11 +109,12 @@ void XOscHost::sendSingleConnectionInfo( XOscClient * client, lo_address target,
   lo_message_free( msg ); 
 }
 
-void XOscHost::sendConnectionInfo( lo_address target ){
+bool XOscHost::sendConnectionInfo( lo_address target ){
   clientMap::const_iterator end = subscribers.end(); 
   for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
     sendSingleConnectionInfo( it->second, target );
   }
+  return hasSubscriptions();
 }
 
 // void XOscHost::addTag( XOscTag * tag ){

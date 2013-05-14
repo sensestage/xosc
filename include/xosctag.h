@@ -55,7 +55,7 @@ public:
     XOscServer * getServer();
     
     void sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected=true );
-    void sendConnectionInfo( lo_address target );
+    bool sendConnectionInfo( lo_address target );
     void sendTagInfo( lo_address target );
     
     lo_message getSingleConnectionInfoMsg( XOscClient * client, bool connected=true );

@@ -134,8 +134,6 @@ lo_message XOscTag::getSingleConnectionInfoMsg( XOscClient * client, bool connec
 }
 
 void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target, bool connected ){
-  lo_address clientAddress = client->getAddress();
-  
   lo_message msg = getSingleConnectionInfoMsg( client, connected );
   
   server->sendMessage( target, "/XOSC/info/connection/tag", msg );
@@ -143,11 +141,12 @@ void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target, 
   lo_message_free( msg ); 
 }
 
-void XOscTag::sendConnectionInfo( lo_address target ){
+bool XOscTag::sendConnectionInfo( lo_address target ){
   clientMap::const_iterator end = subscribers.end(); 
   for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
     sendSingleConnectionInfo( it->second, target );
   }
+  return hasSubscriptions();
 }
 
 bool XOscTag::hasSubscriptions( ){

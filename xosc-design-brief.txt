@@ -43,6 +43,8 @@ IMPLEMENTATION AND INTERFACE
 /XOSC/query/connections/tag - query connections for specific tag (args: tag to query, (opt) port to send data back to)
 /XOSC/query/connections/host - query connections for specific host (args: host ip, host port, (opt) port to send data back to)
 /XOSC/query/connections/hostname - query connections for specific hostname (args: hostname, (opt) port to send data back to)
+? /XOSC/query/connections/client - query connections for specific client (args: host ip, host port, (opt) port to send data back to)
+? /XOSC/query/connections/clientname - query connections for specific clientname (args: hostname, (opt) port to send data back to)
 
 /XOSC/info/tag - tagname, sender ip, sender port, sender name (if any)
 /XOSC/info/connection/tag - tagname, sender ip, sender port, sender name, receiver ip, receiver port, receiver name (if any)
@@ -62,7 +64,18 @@ IMPLEMENTATION AND INTERFACE
 /XOSC/connect/host - make a connection for specific sender and host/port (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 /XOSC/disconnect/host - break a connection for specific sender and host/port (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
 
+/XOSC/connect/hostname - make a connection for specific sender and hostname (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+/XOSC/disconnect/hostname - break a connection for specific sender and hostname (args: source host, source port, target host, target port, (opt) port to send messages to) (confirm w/ bool)
+
+
+
+* connections - implementation:
+- register an OSC handler, which will forward the message to the indicated host/port
+- and be able to remove it again when a connection is broken
+
+
 ------- advanced -------
+--- maybe as a separate program... compare libmapper, e.g. for file formats
 * tag renaming/filtering/mapping (a la libmapper - see how far this needs to go)
     */tag/retag  - make/break connection for specific tag, and rename it.(+ args: new tagname
     */tag/filter - make/break connection for specific tag, and filter arguments (add. args: ids for slots of original data)
@@ -73,6 +86,3 @@ IMPLEMENTATION AND INTERFACE
     */tag/retag/filter/map
 ------- advanced -------
     
-* connections:
-- register an OSC handler, which will forward the message to the indicated host/port
-- and be able to remove it again when a connection is broken

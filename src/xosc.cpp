@@ -165,7 +165,44 @@ int XOscServer::queryTagsHandler( handlerArgs )
     newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
   }
   // send back info about available tags
-    server->sendTagInfo( newaddr );
+    server->sendTagsInfo( newaddr );
+  if ( argc == 1 ){  lo_address_free( newaddr ); }
+  return 0;
+}
+
+int XOscServer::queryHostsHandler( handlerArgs )
+{
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+  
+    if ( server->postDebug )
+    	cout << "[XOscServer::queryHosts] " + server->getContent( path, types, argv, argc ) << "\n";
+  lo_address newaddr = addr;
+  if ( argc == 1 ){
+    newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  }
+  // send back info about available hosts
+  server->sendHostsInfo( newaddr );
+  if ( argc == 1 ){  lo_address_free( newaddr ); }
+  return 0;
+}
+
+int XOscServer::queryClientsHandler( handlerArgs )
+{
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+  
+    if ( server->postDebug )
+    	cout << "[XOscServer::queryClients] " + server->getContent( path, types, argv, argc ) << "\n";
+  lo_address newaddr = addr;
+  if ( argc == 1 ){
+    newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
+  }
+  
+  // send back info about present clients
+  server->sendClientsInfo( newaddr );
   if ( argc == 1 ){  lo_address_free( newaddr ); }
   return 0;
 }
@@ -185,12 +222,109 @@ int XOscServer::queryConnectionsTagHandler( handlerArgs )
   }
         
   // send back info about existing connections
-    server->sendConnectionTagInfo( newaddr, &argv[0]->s );
+  server->sendConnectionTagInfo( newaddr, &argv[0]->s );
   if ( argc == 2 ){
     lo_address_free( newaddr );
   }
   return 0;
 }
+
+int XOscServer::queryConnectionsHostHandler( handlerArgs )
+{
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+  
+    if ( server->postDebug )
+    	cout << "[XOscServer::queryConnectionsHost] " + server->getContent( path, types, argv, argc ) << "\n";
+
+  lo_address hostaddr = lo_address_create_from( &argv[0]->s, argv[1]->i );
+  
+  lo_address newaddr = addr;
+  if ( argc == 3 ){
+    newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[2]->i  );
+  }
+
+  XOscHost * myhost = server->hostExists( argv[1]->i, hostaddr );
+
+  // send back info about existing connections
+  server->sendConnectionHostInfo( newaddr, myhost );
+
+  if ( argc == 3 ){
+    lo_address_free( newaddr );
+  }
+  return 0;
+}
+
+int XOscServer::queryConnectionsHostnameHandler( handlerArgs )
+{
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+  
+    if ( server->postDebug )
+    	cout << "[XOscServer::queryConnectionsHostname] " + server->getContent( path, types, argv, argc ) << "\n";
+
+  lo_address newaddr = addr;
+  if ( argc == 2 ){
+    newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[1]->i  );
+  }
+  // TODO
+  // send back info about existing connections
+//     server->sendConnectionHostInfo( newaddr, &argv[0]->s );
+  if ( argc == 2 ){
+    lo_address_free( newaddr );
+  }
+  return 0;
+}
+
+/*
+int XOscServer::queryConnectionsClientHandler( handlerArgs )
+{
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+  
+    if ( server->postDebug )
+    	cout << "[XOscServer::queryConnectionsClient] " + server->getContent( path, types, argv, argc ) << "\n";
+
+  lo_address newaddr = addr;
+  if ( argc == 2 ){
+    newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[1]->i  );
+  }
+  
+  // TODO
+  // send back info about existing connections
+//     server->sendConnectionHostInfo( newaddr, &argv[0]->s );
+  if ( argc == 2 ){
+    lo_address_free( newaddr );
+  }
+  return 0;
+}
+
+int XOscServer::queryConnectionsClientnameHandler( handlerArgs )
+{
+  lo_message msg = (lo_message) data;
+  lo_address addr = lo_message_get_source( msg );
+  XOscServer* server = ( XOscServer* ) user_data;
+  
+    if ( server->postDebug )
+    	cout << "[XOscServer::queryConnectionsClientname] " + server->getContent( path, types, argv, argc ) << "\n";
+
+  lo_address newaddr = addr;
+  if ( argc == 2 ){
+    newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[1]->i  );
+  }
+  
+  // TODO
+  // send back info about existing connections
+//     server->sendConnectionHostInfo( newaddr, &argv[0]->s );
+  if ( argc == 2 ){
+    lo_address_free( newaddr );
+  }
+  return 0;
+}
+*/
 
 int XOscServer::queryConnectionsHandler( handlerArgs )
 {
@@ -206,7 +340,7 @@ int XOscServer::queryConnectionsHandler( handlerArgs )
     newaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[0]->i  );
   }        
   // send back info about existing connections
-    server->sendConnectionInfo( newaddr ); // TODO: how to retrieve origin address?
+    server->sendConnectionsInfo( newaddr ); // TODO: how to retrieve origin address?
   if ( argc == 1 ){  lo_address_free( newaddr ); }
   return 0;
 }
@@ -274,8 +408,8 @@ int XOscServer::connectHostHandler( handlerArgs )
   if ( myhost == NULL ) {
       myhost = server->createNewHost( argv[1]->i, hostaddr );
   }
-
-  myhost->addSubscription( myclient );
+  
+  server->subscribeToHost( myclient, myhost );
 
   //bool res = server->registerHost( newaddr, (string) &argv[3]->s );
   if ( argc == 5 ){
@@ -293,15 +427,14 @@ int XOscServer::disconnectHostHandler( handlerArgs )
   lo_message msg = (lo_message) data;
   lo_address addr = lo_message_get_source( msg );
   XOscServer* server = ( XOscServer* ) user_data;
-  lo_address retaddr;
+  lo_address retaddr = addr;
   
   if ( server->postDebug )
     cout << "[XOscServer::disconnectHost] " + server->getContent( path, types, argv, argc ) << "\n";
   if ( argc == 5 ){
-    lo_address retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[4]->i  );
-  } else {
-    retaddr = addr;
+    retaddr = lo_address_create_from( lo_address_get_hostname( addr ), argv[4]->i  );
   }
+  
   // host ip, port, client ip, port
   lo_address clientaddr = lo_address_create_from( &argv[2]->s, argv[3]->i  );
   XOscClient * myclient = server->clientExists( argv[3]->i, clientaddr );
@@ -319,9 +452,11 @@ int XOscServer::disconnectHostHandler( handlerArgs )
     return 0;
   }
 
-  myhost->removeSubscription( myclient );
+  server->unsubscribeFromHost( myclient, myhost );
 
-  server->sendConfirmation( retaddr, "/XOSC/connect/host", true );
+//   myhost->removeSubscription( myclient );
+
+  server->sendConfirmation( retaddr, "/XOSC/disconnect/host", true );
   //bool res = server->registerHost( newaddr, (string) &argv[3]->s );
   if ( argc == 5 ){ lo_address_free( retaddr ); }
 }
@@ -410,13 +545,13 @@ int XOscServer::connectTagHandler( handlerArgs )
     cout << "[XOscServer::connectTag] " + server->getContent( path, types, argv, argc ) << "\n";
   
   // tag, client ip, port
-  lo_address clientaddr = lo_address_create_from( &argv[1]->s, argv[2]->i  );
-  XOscClient * myclient = server->clientExists( argv[2]->i, clientaddr );
+  lo_address clientaddr = lo_address_create_from( &argv[0]->s, argv[1]->i  );
+  XOscClient * myclient = server->clientExists( argv[1]->i, clientaddr );
   if ( myclient == NULL ){
-    myclient = server->createNewClient( argv[2]->i, clientaddr );
+    myclient = server->createNewClient( argv[1]->i, clientaddr );
   }
   
-  string tagname = &argv[0]->s;
+  string tagname = &argv[2]->s;
   server->subscribeToTag( myclient, tagname );
 
   //bool res = server->registerHost( newaddr, (string) &argv[3]->s );
@@ -446,15 +581,13 @@ int XOscServer::disconnectTagHandler( handlerArgs )
     retaddr = addr;
   }
   // tag, client ip, port
-  lo_address clientaddr = lo_address_create_from( &argv[1]->s, argv[2]->i  );
-  XOscClient * myclient = server->clientExists( argv[2]->i, clientaddr );
-  if ( myclient == NULL ){
-    
+  lo_address clientaddr = lo_address_create_from( &argv[0]->s, argv[1]->i  );
+  XOscClient * myclient = server->clientExists( argv[1]->i, clientaddr );
+  if ( myclient != NULL ){
+    string tagname = &argv[2]->s;
+    server->unsubscribeFromTag( myclient, tagname );
   }
   
-  string tagname = &argv[0]->s;
-  server->unsubscribeFromTag( myclient, tagname );
-
   server->sendConfirmation( retaddr, "/XOSC/disconnect/tag", true );
   if ( argc == 4 ){
     lo_address_free( retaddr );
@@ -761,10 +894,6 @@ XOscServer::~XOscServer()
 
 void XOscServer::addBasicMethods()
 {
-// 	addMethod( "/ping", "is", pingHandler, this );
-// 	addMethod( "/error", "ssi", errorHandler, this );
-// 	addMethod( "/warn",  "ssi", warnHandler, this );
-
 	addMethod( "/XOSC/register/client",  "si", registerClientHandler, this );    // port, name
 	addMethod( "/XOSC/register/client",  "s", registerClientHandler, this );    // port, name
 	addMethod( "/XOSC/register/client",  "sisi", registerOtherClientHandler, this );    // ipaddress, port, name
@@ -784,18 +913,18 @@ void XOscServer::addBasicMethods()
 
 	addMethod( "/XOSC/query/tags",  "i",   queryTagsHandler, this ); // port to send back to
 	addMethod( "/XOSC/query/tags",  "",   queryTagsHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/hosts",  "i",   queryHostsHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/hosts",  "",   queryHostsHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/clients",  "i",   queryClientsHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/clients",  "",   queryClientsHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/hosts",  "i",   queryHostsHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/hosts",  "",   queryHostsHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/clients",  "i",   queryClientsHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/clients",  "",   queryClientsHandler, this ); // port to send back to
 	addMethod( "/XOSC/query/connections", "i",   queryConnectionsHandler, this ); // port to send back to
 	addMethod( "/XOSC/query/connections", "",   queryConnectionsHandler, this ); // port to send back to
 	addMethod( "/XOSC/query/connections/tag", "si",   queryConnectionsTagHandler, this ); // port to send back to, tag to query
 	addMethod( "/XOSC/query/connections/tag", "s",   queryConnectionsTagHandler, this ); // port to send back to, tag to query
-// 	addMethod( "/XOSC/query/connections/host", "sii",   queryConnectionsHostHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/connections/host", "si",   queryConnectionsHostHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/connections/hostname", "si",   queryConnectionsHostnameHandler, this ); // port to send back to
-// 	addMethod( "/XOSC/query/connections/hostname", "s",   queryConnectionsHostnameHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/connections/host", "sii",   queryConnectionsHostHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/connections/host", "si",   queryConnectionsHostHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/connections/hostname", "si",   queryConnectionsHostnameHandler, this ); // port to send back to
+	addMethod( "/XOSC/query/connections/hostname", "s",   queryConnectionsHostnameHandler, this ); // port to send back to
 
 
 	addMethod( "/XOSC/subscribe/tag",   "si",  subscribeTagHandler, this ); // port to send back to, tag
@@ -991,36 +1120,89 @@ bool XOscServer::unregisterWatcher( lo_address clientAddr, int port ){
 }
 
 
-void XOscServer::sendTagInfo( lo_address addr ){
-    // TODO: Iterate over tags and call sendTagInfo on it
+void XOscServer::sendTagsInfo( lo_address addr ){
   tagMap::const_iterator end = oscTags.end(); 
   for (tagMap::const_iterator it = oscTags.begin(); it != end; ++it) {
       it->second->sendTagInfo( addr );
   }
-//   
-}
-
-void XOscServer::sendConnectionInfo( lo_address  addr ){
-    // TODO: iterate over tags, and send which clients are connected
-  tagMap::const_iterator end = oscTags.end(); 
-  for (tagMap::const_iterator it = oscTags.begin(); it != end; ++it) {
-      it->second->sendConnectionInfo( addr );
-  }  
-  hostMap::const_iterator endh = oscHosts.end();
-  for (hostMap::const_iterator it = oscHosts.begin(); it != endh; ++it) {
-      it->second->sendConnectionInfo( addr );
+  if ( oscTags.size() == 0 ){
+      sendConfirmation( addr, "/XOSC/query/tags", false );      
   }
 }
 
+void XOscServer::sendHostsInfo( lo_address addr ){
+  hostMap::const_iterator endh = oscHosts.end();
+  for (hostMap::const_iterator it = oscHosts.begin(); it != endh; ++it) {
+      lo_message msg = it->second->getHostInfoMsg();    
+      sendMessage( addr, "/XOSC/info/host", msg );  
+      lo_message_free( msg );
+  }
+  if ( oscHosts.size() == 0 ){
+      sendConfirmation( addr, "/XOSC/query/hosts", false );      
+  }
+}
+
+void XOscServer::sendClientsInfo( lo_address addr ){
+  clientMap::const_iterator endh = oscClients.end();
+  for (clientMap::const_iterator it = oscClients.begin(); it != endh; ++it) {
+      lo_message msg = it->second->getClientInfoMsg();
+      sendMessage( addr, "/XOSC/info/client", msg );  
+      lo_message_free( msg );
+  }
+  if ( oscClients.size() == 0 ){
+      sendConfirmation( addr, "/XOSC/query/clients", false );      
+  }
+}
+
+void XOscServer::sendConnectionsInfo( lo_address  addr ){
+  bool res = false;
+  tagMap::const_iterator end = oscTags.end(); 
+  for (tagMap::const_iterator it = oscTags.begin(); it != end; ++it) {
+      res = res | it->second->sendConnectionInfo( addr );
+  }  
+  hostMap::const_iterator endh = oscHosts.end();
+  for (hostMap::const_iterator it = oscHosts.begin(); it != endh; ++it) {
+      res = res | it->second->sendConnectionInfo( addr );
+  }
+  if ( !res ){
+      sendConfirmation( addr, "/XOSC/query/connections", false );      
+  }
+
+}
+
 void XOscServer::sendConnectionTagInfo( lo_address  addr, string tag ){
+   bool res = false;
    XOscTag * xtag = tagExists( tag );
    if ( xtag != NULL ){
-      xtag->sendConnectionInfo( addr );
+      res = xtag->sendConnectionInfo( addr );
+   }
+   if ( !res ){
+      sendConfirmation( addr, "/XOSC/query/connection/tag", false );    
    }
 }
 
+void XOscServer::sendConnectionHostInfo( lo_address addr, XOscHost * host ){
+   bool res = false;
+   if ( host != NULL ){
+     res = host->sendConnectionInfo( addr );
+   } 
+   if ( !res ) {
+      sendConfirmation( addr, "/XOSC/query/connection/host", false );    
+   }
+}
+
+// void XOscServer::sendConnectionClientInfo( lo_address  addr, XOscClient * client ){
+  // TODO : how to store host connections of client?
+//    if ( client != NULL ){
+//      lo_message msg = client->getClientConnectionsMsg();
+//      sendMessage( addr, "/XOSC/info/connection/client", msg );
+//       client->sendConnectionInfo( addr );
+//      lo_message_free( msg );
+//    }
+// }
+
 void XOscServer::sendWatchersClientInfo( XOscClient * client ){
-  lo_message msg = client->getClientInfoMsg();    
+  lo_message msg = client->getClientInfoMsg();
   clientMap::const_iterator end = oscWatchers.end(); 
   for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
     sendMessage( it->second->getAddress(), "/XOSC/info/client", msg );  
