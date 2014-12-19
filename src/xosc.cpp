@@ -1129,12 +1129,14 @@ bool XOscServer::registerWatcher( lo_address clientAddr, int port ){
 
 bool XOscServer::unregisterWatcher( lo_address clientAddr, int port ){
   if ( watcherExists( port, clientAddr ) ){
-      removeWatcher( port );
+      removeWatcher( port, clientAddr );
       return true;
   }
   return false;
 }
 
+
+// ============= send info =============
 
 void XOscServer::sendTagsInfo( lo_address addr ){
   tagMap::const_iterator end = oscTags.end(); 
@@ -1147,25 +1149,25 @@ void XOscServer::sendTagsInfo( lo_address addr ){
 }
 
 void XOscServer::sendHostsInfo( lo_address addr ){
-  hostMap::const_iterator endh = oscHosts.end();
-  for (hostMap::const_iterator it = oscHosts.begin(); it != endh; ++it) {
+  hostAddrMap::const_iterator endh = oscHostsByAddr.end();
+  for (hostAddrMap::const_iterator it = oscHostsByAddr.begin(); it != endh; ++it) {
       lo_message msg = it->second->getHostInfoMsg();    
       sendMessage( addr, "/XOSC/info/host", msg );  
       lo_message_free( msg );
   }
-  if ( oscHosts.size() == 0 ){
+  if ( oscHostsByAddr.size() == 0 ){
       sendConfirmation( addr, "/XOSC/query/hosts", false );      
   }
 }
 
 void XOscServer::sendClientsInfo( lo_address addr ){
-  clientMap::const_iterator endh = oscClients.end();
-  for (clientMap::const_iterator it = oscClients.begin(); it != endh; ++it) {
+  clientAddrMap::const_iterator endh = oscClientsByAddr.end();
+  for (clientAddrMap::const_iterator it = oscClientsByAddr.begin(); it != endh; ++it) {
       lo_message msg = it->second->getClientInfoMsg();
       sendMessage( addr, "/XOSC/info/client", msg );  
       lo_message_free( msg );
   }
-  if ( oscClients.size() == 0 ){
+  if ( oscClientsByAddr.size() == 0 ){
       sendConfirmation( addr, "/XOSC/query/clients", false );      
   }
 }
@@ -1176,8 +1178,8 @@ void XOscServer::sendConnectionsInfo( lo_address  addr ){
   for (tagMap::const_iterator it = oscTags.begin(); it != end; ++it) {
       res = res | it->second->sendConnectionInfo( addr );
   }  
-  hostMap::const_iterator endh = oscHosts.end();
-  for (hostMap::const_iterator it = oscHosts.begin(); it != endh; ++it) {
+  hostAddrMap::const_iterator endh = oscHostsByAddr.end();
+  for (hostAddrMap::const_iterator it = oscHostsByAddr.begin(); it != endh; ++it) {
       res = res | it->second->sendConnectionInfo( addr );
   }
   if ( !res ){
@@ -1219,8 +1221,8 @@ void XOscServer::sendConnectionHostInfo( lo_address addr, XOscHost * host ){
 
 void XOscServer::sendWatchersClientInfo( XOscClient * client ){
   lo_message msg = client->getClientInfoMsg();
-  clientMap::const_iterator end = oscWatchers.end(); 
-  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = oscWatchersByAddr.end(); 
+  for (clientAddrMap::const_iterator it = oscWatchersByAddr.begin(); it != end; ++it) {
     sendMessage( it->second->getAddress(), "/XOSC/info/client", msg );  
   }  
   lo_message_free( msg );
@@ -1228,8 +1230,8 @@ void XOscServer::sendWatchersClientInfo( XOscClient * client ){
 
 void XOscServer::sendWatchersHostInfo( XOscHost * host ){
   lo_message msg = host->getHostInfoMsg();    
-  clientMap::const_iterator end = oscWatchers.end(); 
-  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = oscWatchersByAddr.end(); 
+  for (clientAddrMap::const_iterator it = oscWatchersByAddr.begin(); it != end; ++it) {
     sendMessage( it->second->getAddress(), "/XOSC/info/host", msg );  
   }  
   lo_message_free( msg );
@@ -1237,8 +1239,8 @@ void XOscServer::sendWatchersHostInfo( XOscHost * host ){
 
 void XOscServer::sendWatchersTagInfo( XOscTag * xtag ){
   lo_message msg = xtag->getTagInfoMsg();
-  clientMap::const_iterator end = oscWatchers.end(); 
-  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = oscWatchersByAddr.end(); 
+  for (clientAddrMap::const_iterator it = oscWatchersByAddr.begin(); it != end; ++it) {
 //     xtag->sendTagInfo( it->second->getAddress() );
     sendMessage( it->second->getAddress(), "/XOSC/info/tag", msg );  
   }
@@ -1247,8 +1249,8 @@ void XOscServer::sendWatchersTagInfo( XOscTag * xtag ){
 
 void XOscServer::sendWatchersConnectionInfo( XOscHost * host, XOscClient * client, bool gotconnected ){
   lo_message msg = host->getSingleConnectionInfoMsg( client, gotconnected );
-  clientMap::const_iterator end = oscWatchers.end(); 
-  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = oscWatchersByAddr.end(); 
+  for (clientAddrMap::const_iterator it = oscWatchersByAddr.begin(); it != end; ++it) {
     sendMessage( it->second->getAddress(), "/XOSC/info/connection/host", msg );  
 //     xtag->sendSingleConnectionInfo( client, it->second->getAddress(), gotconnected );
   }
@@ -1257,13 +1259,16 @@ void XOscServer::sendWatchersConnectionInfo( XOscHost * host, XOscClient * clien
 
 void XOscServer::sendWatchersConnectionInfo( XOscTag * xtag, XOscClient * client, bool gotconnected ){
   lo_message msg = xtag->getSingleConnectionInfoMsg( client, gotconnected );
-  clientMap::const_iterator end = oscWatchers.end(); 
-  for (clientMap::const_iterator it = oscWatchers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = oscWatchersByAddr.end(); 
+  for (clientAddrMap::const_iterator it = oscWatchersByAddr.begin(); it != end; ++it) {
     sendMessage( it->second->getAddress(), "/XOSC/info/connection/tag", msg );  
 //     xtag->sendSingleConnectionInfo( client, it->second->getAddress(), gotconnected );
   }
   lo_message_free( msg );
 }
+
+
+// =========== OSC tags ==========
 
 XOscTag * XOscServer::tagExists( string name ){
   tagMap::iterator iter = oscTags.find( name );
@@ -1310,11 +1315,24 @@ XOscTag * XOscServer::createNewTag( string name ){
   return newtag;
 }
 
+
+// =========== watchers ==========
+
+
 XOscClient * XOscServer::watcherExists( int port, lo_address addr ){
-  clientMap::iterator iter = oscWatchers.find( port );
-  if ( iter != oscWatchers.end() ){
-    if ( lo_address_issame( addr, iter->second->getAddress() ) ){
-      return iter->second;
+//   clientPortMap::iterator iter = oscWatchers.find( port );
+//   if ( iter != oscWatchers.end() ){
+//     if ( lo_address_issame( addr, iter->second->getAddress() ) ){
+//       return iter->second;
+// // 	return true;
+//     }
+//   }
+//   // still NULL
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  clientAddrMap::iterator iter2 = oscWatchersByAddr.find( addrportint );
+  if ( iter2 != oscWatchersByAddr.end() ){
+    if ( lo_address_issame( addr, iter2->second->getAddress() ) ){
+      return iter2->second;
 // 	return true;
     }
   }
@@ -1323,23 +1341,43 @@ XOscClient * XOscServer::watcherExists( int port, lo_address addr ){
 
 XOscClient * XOscServer::createNewWatcher( int port, lo_address addr ){
   XOscClient * newclient = new XOscClient( addr );
-  oscWatchers.insert( make_pair( port, newclient) );
+//   oscWatchers.insert( make_pair( port, newclient) );  
+  oscWatchersByAddr.insert( make_pair( newclient->getPortAddrInt(), newclient) );
   return newclient;
 }
 
-void XOscServer::removeWatcher( int port ){
-  clientMap::iterator iter = oscWatchers.find( port );
-  if ( iter != oscWatchers.end() ){
-    delete iter->second;
-    oscWatchers.erase( iter );
+void XOscServer::removeWatcher( int port, lo_address addr ){
+//   clientPortMap::iterator iter = oscWatchers.find( port );
+//   if ( iter != oscWatchers.end() ){
+// //     delete iter->second;
+//     oscWatchers.erase( iter );
+//   }
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  clientAddrMap::iterator iter2 = oscWatchersByAddr.find( addrportint );
+  if ( iter2 != oscWatchersByAddr.end() ){
+    delete iter2->second;
+    oscWatchersByAddr.erase( iter2 );
   }
 }
 
+
+// =========== clients ==========
+
+
 XOscClient * XOscServer::clientExists( int port, lo_address addr ){
-  clientMap::iterator iter = oscClients.find( port );
-  if ( iter != oscClients.end() ){
-    if ( lo_address_issame( addr, iter->second->getAddress() ) ){
-      return iter->second;
+//   clientPortMap::iterator iter = oscClients.find( port );
+//   if ( iter != oscClients.end() ){
+//     if ( lo_address_issame( addr, iter->second->getAddress() ) ){
+//       return iter->second;
+// // 	return true;
+//     }
+//   }
+  // still NULL
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  clientAddrMap::iterator iter2 = oscClientsByAddr.find( addrportint );
+  if ( iter2 != oscClientsByAddr.end() ){
+    if ( lo_address_issame( addr, iter2->second->getAddress() ) ){
+      return iter2->second;
 // 	return true;
     }
   }
@@ -1347,10 +1385,18 @@ XOscClient * XOscServer::clientExists( int port, lo_address addr ){
 }
 
 bool XOscServer::clientExistsAndChangeName( int port, lo_address addr, string name ){
-  clientMap::iterator iter = oscClients.find( port );
-  if ( iter != oscClients.end() ){
-    if ( lo_address_issame( addr, iter->second->getAddress() ) ){
-	iter->second->setName( name );
+//   clientPortMap::iterator iter = oscClients.find( port );
+//   if ( iter != oscClients.end() ){
+//     if ( lo_address_issame( addr, iter->second->getAddress() ) ){
+// 	iter->second->setName( name );
+// 	return true;
+//     }
+//   }
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  clientAddrMap::iterator iter2 = oscClientsByAddr.find( port );
+  if ( iter2 != oscClientsByAddr.end() ){
+    if ( lo_address_issame( addr, iter2->second->getAddress() ) ){
+	iter2->second->setName( name );
 	return true;
     }
   }
@@ -1360,22 +1406,35 @@ bool XOscServer::clientExistsAndChangeName( int port, lo_address addr, string na
 XOscClient * XOscServer::createNewClient( int port, lo_address addr, string name ){
   XOscClient * newclient = new XOscClient( addr );
   newclient->setName( name );
-  oscClients.insert( make_pair( port, newclient) );
+//   oscClients.insert( make_pair( port, newclient) );
+  oscClientsByAddr.insert( make_pair(  newclient->getPortAddrInt(), newclient) );
   return newclient;
 }
 
 XOscClient * XOscServer::createNewClient( int port, lo_address addr ){
   XOscClient * newclient = new XOscClient( addr );
 //   newclient->setName( name );
-  oscClients.insert( make_pair( port, newclient) );
+//   oscClients.insert( make_pair( port, newclient) );
+  oscClientsByAddr.insert( make_pair(  newclient->getPortAddrInt(), newclient) );
   return newclient;
 }
 
+
+// =========== hosts ==========
+
+
 XOscHost*  XOscServer::hostExists( int port, lo_address addr ){
-  hostMap::iterator iter = oscHosts.find( port );
-  if ( iter != oscHosts.end() ){
-    if ( lo_address_issame( addr, (iter->second->getAddress() ) ) ){
-	return iter->second;
+//   hostPortMap::iterator iter = oscHosts.find( port );
+//   if ( iter != oscHosts.end() ){
+//     if ( lo_address_issame( addr, (iter->second->getAddress() ) ) ){
+// 	return iter->second;
+//     }
+//   }
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  hostAddrMap::iterator iter2 = oscHostsByAddr.find( addrportint );
+  if ( iter2 != oscHostsByAddr.end() ){
+    if ( lo_address_issame( addr, (iter2->second->getAddress() ) ) ){
+	return iter2->second;
     }
   }
   return NULL;
@@ -1395,14 +1454,20 @@ XOscHost * XOscServer::createNewHost( int port, lo_address addr, string name ){
   XOscHost * newhost = new XOscHost( addr );
   newhost->setName( name );
   newhost->setServer( this );
-  oscHosts.insert( make_pair( port, newhost ) );
+
+//   oscHosts.insert( make_pair( port, newhost ) );
+  
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  oscHostsByAddr.insert( make_pair( addrportint, newhost ) );
   return newhost;
 }
 
 XOscHost * XOscServer::createNewHost( int port, lo_address addr ){
   XOscHost * newhost = new XOscHost( addr );
   newhost->setServer( this );
-  oscHosts.insert( make_pair( port, newhost ) );
+//   oscHosts.insert( make_pair( port, newhost ) );
+  uint32_t addrportint = lo_address_get_addr_as_int( addr );
+  oscHostsByAddr.insert( make_pair( addrportint, newhost ) );
   return newhost;
 }
 

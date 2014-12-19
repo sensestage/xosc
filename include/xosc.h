@@ -42,10 +42,14 @@ using namespace std;
 
 namespace XOsc {
 
-  typedef std::map<string, int> portMap;
-  
-  typedef std::map<int, XOsc::XOscHost*> hostMap;     // order by port
+//   typedef std::map<string, int> portMap; // name to port
+//   typedef std::map<string, uint32_t> portAddrMap; // name to port/addr long
 
+//   typedef std::map<int, XOsc::XOscHost*> hostPortMap;     // order by port
+  typedef std::map<uint32_t, XOsc::XOscHost*> hostAddrMap;     // order by port
+
+//   typedef std::map<string, unsigned long> portAddrMap; // name to port/addr long
+//   typedef std::map<unsigned long, XOsc::XOscHost*> portAddrHostMap;     // order by port
   
 /**
 	@author Marije Baalman <nescivi@gmail.com>
@@ -62,12 +66,20 @@ public:
 
 private:
   tagMap oscTags;
-  clientMap oscClients;
-  hostMap oscHosts;
-  clientMap oscWatchers;
   
-  portMap oscHostNames;
-  portMap oscClientNames;
+//   hostPortMap oscHosts;
+  hostAddrMap oscHostsByAddr;
+  
+//   clientPortMap oscClients;
+  clientAddrMap oscClientsByAddr;
+//   clientPortMap oscWatchers;
+  clientAddrMap oscWatchersByAddr;
+  
+//   portMap oscHostNames;
+//   portMap oscClientNames;
+
+//   portAddrMap oscHostNames;
+//   portAddrMap oscClientNames;
   
   void createMethod( XOscTag * osctag );
   void deleteMethod( XOscTag * osctag );
@@ -110,7 +122,7 @@ private:
 
   XOscClient* watcherExists( int port, lo_address addr );
   XOscClient* createNewWatcher( int port, lo_address addr );
-  void removeWatcher( int port );
+  void removeWatcher( int port, lo_address addr );
   
   XOscClient* clientExists( int port, lo_address addr );
   bool clientExistsAndChangeName( int port, lo_address addr, string name );

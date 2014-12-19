@@ -34,6 +34,11 @@ namespace XOsc {
 
   XOscClient::XOscClient( lo_address host ){
       hostAddress = host;
+      portAddrInt = lo_address_get_addr_as_int( hostAddress );
+  }
+  
+  uint32_t XOscClient::getPortAddrInt(){
+    return portAddrInt;
   }
 
   lo_address XOscClient::getAddress(){

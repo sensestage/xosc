@@ -73,14 +73,14 @@ public:
 private:
 //  tagMap sendingTags;    // tags I'm sending
   tagNameList sendingTags;    // tags I'm sending
-  clientMap subscribers; // subscribers to this host
+  clientAddrMap subscribers; // subscribers to this host
   XOscServer * server;
 
   string name;
   lo_address hostAddress;
 };
 
-  typedef std::map<int, XOscHost*> hostMap;     // order by port 
+//   typedef std::map<int, XOscHost*> hostPortMap;     // order by port 
 }
 
 #endif

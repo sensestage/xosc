@@ -42,6 +42,8 @@ public:
     lo_address getAddress();
     int getPort();
     
+    uint32_t getPortAddrInt();
+    
     string getMapName();
     
     string getName();
@@ -72,9 +74,12 @@ private:
   
   string name;
   lo_address hostAddress;
+  uint32_t portAddrInt;
 };
   
-  typedef std::map<int, XOsc::XOscClient*> clientMap; // order by port
+//   typedef std::map<int, XOsc::XOscClient*> clientPortMap; // order by port
+  typedef std::map<uint32_t, XOsc::XOscClient*> clientAddrMap; // order by port & addr
+  
 }
 
 #endif

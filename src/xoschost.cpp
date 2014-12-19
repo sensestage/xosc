@@ -110,8 +110,8 @@ void XOscHost::sendSingleConnectionInfo( XOscClient * client, lo_address target,
 }
 
 bool XOscHost::sendConnectionInfo( lo_address target ){
-  clientMap::const_iterator end = subscribers.end(); 
-  for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = subscribers.end(); 
+  for (clientAddrMap::const_iterator it = subscribers.begin(); it != end; ++it) {
     sendSingleConnectionInfo( it->second, target );
   }
   return hasSubscriptions();
@@ -130,8 +130,8 @@ bool XOscHost::sendConnectionInfo( lo_address target ){
   }
 
   void XOscHost::sendMessageToSubscribers( XOscServer * server, const char * path, lo_message msg ){
-    clientMap::const_iterator end = subscribers.end(); 
-    for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
+    clientAddrMap::const_iterator end = subscribers.end(); 
+    for (clientAddrMap::const_iterator it = subscribers.begin(); it != end; ++it) {
 	server->sendMessage( it->second->getAddress(), path, msg );
     }
   }
@@ -149,11 +149,11 @@ bool XOscHost::hasSubscriptions(){
 }
 
 void XOscHost::addSubscription( XOscClient * client ){
-  subscribers.insert( make_pair(client->getPort(), client) );
+  subscribers.insert( make_pair(client->getPortAddrInt(), client) );
 }
 
 void XOscHost::removeSubscription( XOscClient * client ){
-  clientMap::iterator iter = subscribers.find( client->getPort() );
+  clientAddrMap::iterator iter = subscribers.find( client->getPortAddrInt() );
   if ( iter != subscribers.end() ){
     // iter->second free
     subscribers.erase( iter );

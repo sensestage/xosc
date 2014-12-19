@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
   // create an osc client interface for it:
   xosc = new XOscServer( argv[1] );
-  xosc->debug( true ); // is false by default, but turn on if you want
+  xosc->debug( true ); // is false by default, but turn on if you want --- make this an option!!!
   xosc->addBasicMethods();
   xosc->start();
 

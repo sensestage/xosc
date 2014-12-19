@@ -11,4 +11,10 @@ lo_address lo_address_copy( lo_address addr );
 lo_address lo_address_create_from( const char * host, int port );
 int lo_address_get_port_as_int( lo_address addr );
 
+uint32_t lo_address_get_hostname_as_short_int( lo_address addr );
+uint32_t lo_address_get_addr_as_int( lo_address addr );
+
+uint32_t lo_address_get_hostname_as_int( lo_address addr );
+unsigned long lo_address_get_addr_as_long( lo_address addr );
+
 #endif

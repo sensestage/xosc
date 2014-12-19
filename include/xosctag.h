@@ -81,7 +81,7 @@ private:
   string tagname;
   XOscServer * server;
   XOscHost * origin;
-  clientMap subscribers;
+  clientAddrMap subscribers;
 };
 
   typedef std::map<std::string, XOsc::XOscTag*> tagMap;

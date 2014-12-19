@@ -142,8 +142,8 @@ void XOscTag::sendSingleConnectionInfo( XOscClient * client, lo_address target, 
 }
 
 bool XOscTag::sendConnectionInfo( lo_address target ){
-  clientMap::const_iterator end = subscribers.end(); 
-  for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = subscribers.end(); 
+  for (clientAddrMap::const_iterator it = subscribers.begin(); it != end; ++it) {
     sendSingleConnectionInfo( it->second, target );
   }
   return (subscribers.size() > 0);
@@ -158,11 +158,11 @@ bool XOscTag::hasSubscriptions( ){
 }
 
 void XOscTag::addSubscription( XOscClient * client ){
-  subscribers.insert( make_pair(client->getPort(), client) );
+  subscribers.insert( make_pair(client->getPortAddrInt(), client) );
 }
 
 void XOscTag::removeSubscription( XOscClient * client ){
-  clientMap::iterator iter = subscribers.find( client->getPort() );
+  clientAddrMap::iterator iter = subscribers.find( client->getPortAddrInt() );
   if ( iter != subscribers.end() ){
     // iter->second free
     subscribers.erase( iter );
@@ -171,8 +171,8 @@ void XOscTag::removeSubscription( XOscClient * client ){
 
 void XOscTag::forwardMsgToSubscribers( const char * path, lo_message msg ){
   //   lo_message msg = server->getMessage( types, argv, argc );    
-  clientMap::const_iterator end = subscribers.end(); 
-  for (clientMap::const_iterator it = subscribers.begin(); it != end; ++it) {
+  clientAddrMap::const_iterator end = subscribers.end(); 
+  for (clientAddrMap::const_iterator it = subscribers.begin(); it != end; ++it) {
       server->sendMessage( it->second->getAddress(), path, msg );
   }
   origin->sendMessageToSubscribers( server, path, msg );
@@ -196,8 +196,8 @@ int XOscTag::messageHandler( handlerArgs )
   tag->forwardMsgToSubscribers( path, msg );
  
 //   //   lo_message msg = server->getMessage( types, argv, argc );    
-//   clientMap::const_iterator end = tag->subscribers.end(); 
-//   for (clientMap::const_iterator it = tag->subscribers.begin(); it != end; ++it) {
+//   clientAddrMap::const_iterator end = tag->subscribers.end(); 
+//   for (clientAddrMap::const_iterator it = tag->subscribers.begin(); it != end; ++it) {
 //       server->sendMessage( it->second->getAddress(), path, msg );
 //   }
   //FIXME:
